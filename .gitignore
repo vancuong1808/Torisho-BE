@@ -1,0 +1,90 @@
+# ===== .NET build outputs =====
+**/bin/
+**/obj/
+**/[Bb]uild/
+**/[Oo]ut/
+**/TestResults/
+
+# ===== Visual Studio =====
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.cache
+*.pdb
+*.opendb
+*.VC.db
+
+# ===== VS Code =====
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# ===== JetBrains Rider / IntelliJ =====
+.idea/
+*.sln.iml
+
+# ===== OS files =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===== Logs =====
+*.log
+logs/
+**/logs/
+
+# ===== NuGet =====
+*.nupkg
+*.snupkg
+.nuget/NuGet.Config.user
+.nuget/packages/   # keep if you use PackageReference (default). Remove this line if you intentionally vendor packages.
+
+# ===== ASP.NET secrets / local settings =====
+# Keep appsettings.json committed; ignore local overrides if you use them
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+# User secrets live outside repo by default, but ignore any accidental secrets files
+**/*secrets*.json
+**/*secret*.json
+
+# ===== EF / DB local files (optional) =====
+*.mdf
+*.ldf
+*.sqlite
+*.db
+*.bak
+
+# ===== Coverage =====
+coverage/
+**/coverage/
+*.coverage
+*.coveragexml
+**/*.trx
+
+# ===== Node (if any frontend tooling exists) =====
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== Publish artifacts =====
+**/publish/
+**/*.publishsettings
+
+# ===== HTTP scratch files =====
+*.http
+*.rest
+
+# ===== Certificates =====
+*.pfx
+*.snk
+
+# ===== Docker (future use) =====
+# Local environment / secrets
+.env
