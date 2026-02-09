@@ -21,4 +21,22 @@ public sealed class Quiz : QuizComponent, IAggregateRoot
     }
 
     public override bool Validate() => true;
+
+    public void AddQuestion(Question question)
+    {
+        if (!_questions.Contains(question)) _questions.Add(question);
+    }
+
+    public void RemoveQuestion(Question question)
+    {
+        if (_questions.Contains(question)) _questions.Remove(question);
+    }
+
+    public float Evaluate(IDictionary<Guid, Guid> answers)
+    {
+        // answers: questionId -> selectedOptionId
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyCollection<Question> GetQuestions() => Questions;
 }

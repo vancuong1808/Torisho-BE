@@ -32,4 +32,14 @@ public sealed class Level : BaseEntity, IAggregateRoot
     {
         _chapters.Add(chapter);
     }
+
+    public float CalculateProgress(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateProgress(Guid userId, float progress)
+    {
+        throw new NotImplementedException();
+    }
 }

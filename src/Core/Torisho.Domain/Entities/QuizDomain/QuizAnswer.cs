@@ -24,4 +24,10 @@ public sealed class QuizAnswer : BaseEntity
         SelectedOptionId = selectedOptionId;
         IsCorrect = isCorrect;
     }
+
+    public bool Validate()
+    {
+        // Basic validate: ensure ids are present
+        return AttemptId != Guid.Empty && QuestionId != Guid.Empty && SelectedOptionId != Guid.Empty;
+    }
 }

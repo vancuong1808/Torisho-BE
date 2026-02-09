@@ -24,4 +24,11 @@ public sealed class Question : QuizComponent
     }
 
     public override bool Validate() => true;
+
+    public void AddOption(QuestionOption option)
+    {
+        if (!_options.Contains(option)) _options.Add(option);
+    }
+
+    public QuestionOption? GetCorrectOption() => _options.FirstOrDefault(o => o.IsCorrect);
 }

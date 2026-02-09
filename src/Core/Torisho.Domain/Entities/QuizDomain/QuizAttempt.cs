@@ -27,4 +27,27 @@ public sealed class QuizAttempt : BaseEntity, IAggregateRoot
         QuizId = quizId;
         StartedAt = DateTime.UtcNow;
     }
+
+    public void Submit()
+    {
+        CompletedAt = DateTime.UtcNow;
+        Score = CalculateScore();
+    }
+
+    public float CalculateScore()
+    {
+        if (!_answers.Any()) return 0f;
+        var correct = _answers.Count(a => a.IsCorrect);
+        return (float)correct / _answers.Count * 100f;
+    }
+
+    public IDictionary<string, object?> GetResult()
+    {
+        return new Dictionary<string, object?>
+        {
+            { "score", Score },
+            { "startedAt", StartedAt },
+            { "completedAt", CompletedAt }
+        };
+    }
 }

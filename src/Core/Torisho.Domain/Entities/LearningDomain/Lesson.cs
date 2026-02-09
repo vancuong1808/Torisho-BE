@@ -35,4 +35,22 @@ public sealed class Lesson : BaseEntity, IAggregateRoot
 
     public void Start() { }
     public void Complete(Guid userId) { }
+
+    public Quiz GenerateQuiz()
+    {
+        if (Quiz is not null) return Quiz;
+        return Content.CreateQuiz();
+    }
+
+    public bool HasQuiz() => QuizId.HasValue || Content != null;
+
+    public float CalculateProgress(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateProgress(Guid userId, float progress)
+    {
+        throw new NotImplementedException();
+    }
 }
