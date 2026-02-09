@@ -1,10 +1,11 @@
 using Torisho.Domain.Common;
 using Torisho.Domain.Enums;
 using Torisho.Domain.Entities.QuizDomain;
+using Torisho.Domain.Interfaces;
 
 namespace Torisho.Domain.Entities.LearningDomain;
 
-public sealed class Lesson : BaseEntity, IAggregateRoot
+public sealed class Lesson : BaseEntity, IQuizable, IProgressable
 {
     public Guid ChapterId { get; private set; }
     public Chapter Chapter { get; private set; } = default!;
@@ -13,12 +14,10 @@ public sealed class Lesson : BaseEntity, IAggregateRoot
     public string Description { get; private set; } = default!;
     public LessonType Type { get; private set; }
     public int Order { get; private set; }
-
-    public Guid ContentId { get; private set; }
     public LearningContent Content { get; private set; } = default!;
-
-    public Guid? QuizId { get; private set; }
-    public Quiz? Quiz { get; private set; }
+    public Guid ContentId { get; set; }
+    public Guid? QuizId { get; set; }
+    public Quiz? Quiz { get; set; }
 
     private Lesson() { }
 
@@ -46,11 +45,14 @@ public sealed class Lesson : BaseEntity, IAggregateRoot
 
     public float CalculateProgress(Guid userId)
     {
-        throw new NotImplementedException();
+        // Calculate based on quiz completion
+        // This is placeholder - actual implementation depends on business logic
+        return 0f;
     }
 
     public void UpdateProgress(Guid userId, float progress)
     {
-        throw new NotImplementedException();
+        // Update lesson progress for user
+        // This would typically interact with LearningProgress entity
     }
 }

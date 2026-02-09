@@ -4,6 +4,7 @@ namespace Torisho.Domain.Entities.UserDomain;
 
 public sealed class Role : BaseEntity
 {
+    // DDD: Aggregate - Role manages Permissions through domain methods
     private readonly HashSet<Permission> _permissions = new();
 
     public string Name { get; private set; } = default!;
@@ -21,18 +22,14 @@ public sealed class Role : BaseEntity
 
     public void AddPermission(Permission permission)
     {
-        if (!_permissions.Contains(permission))
-        {
-            _permissions.Add(permission);
-        }
+        ArgumentNullException.ThrowIfNull(permission);
+        _permissions.Add(permission);
     }
 
     public void RemovePermission(Permission permission)
     {
-        if (_permissions.Contains(permission))
-        {
-            _permissions.Remove(permission);
-        }
+        ArgumentNullException.ThrowIfNull(permission);
+        _permissions.Remove(permission);
     }
 
     public bool HasPermission(string code) => _permissions.Any(p => p.Code == code);

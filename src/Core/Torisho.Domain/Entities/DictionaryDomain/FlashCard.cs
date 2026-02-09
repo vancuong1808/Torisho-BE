@@ -3,7 +3,7 @@ using Torisho.Domain.Entities.UserDomain;
 
 namespace Torisho.Domain.Entities.DictionaryDomain;
 
-public sealed class FlashCard : BaseEntity, IAggregateRoot
+public sealed class FlashCard : BaseEntity
 {
     public Guid UserId { get; private set; }
     public User User { get; private set; } = default!;

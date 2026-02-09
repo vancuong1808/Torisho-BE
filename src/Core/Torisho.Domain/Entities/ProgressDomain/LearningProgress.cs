@@ -27,4 +27,56 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
         LevelId = levelId;
         LastUpdated = DateTime.UtcNow;
     }
+
+    public void UpdateSkillProgress(string skill, float value)
+    {
+        switch (skill.ToLower())
+        {
+            case "vocabulary":
+                VocabularyProgress = value;
+                break;
+            case "grammar":
+                GrammarProgress = value;
+                break;
+            case "reading":
+                ReadingProgress = value;
+                break;
+            case "listening":
+                ListeningProgress = value;
+                break;
+        }
+        TotalProgress = CalculateTotalProgress();
+        LastUpdated = DateTime.UtcNow;
+    }
+
+    public float CalculateTotalProgress()
+    {
+        return (VocabularyProgress + GrammarProgress + ReadingProgress + ListeningProgress) / 4f;
+    }
+
+    public void UpdateProgress(Guid userId, float progress)
+    {
+        if (UserId == userId)
+        {
+            TotalProgress = progress;
+            LastUpdated = DateTime.UtcNow;
+        }
+    }
+
+    public float CalculateProgress(Guid userId)
+    {
+        return UserId == userId ? TotalProgress : 0f;
+    }
+
+    public string GetStatus()
+    {
+        return TotalProgress switch
+        {
+            >= 100f => "Completed",
+            >= 75f => "Advanced",
+            >= 50f => "Intermediate",
+            >= 25f => "Beginner",
+            _ => "Started"
+        };
+    }
 }

@@ -2,8 +2,9 @@ using Torisho.Domain.Common;
 
 namespace Torisho.Domain.Entities.QuizDomain;
 
-public sealed class Question : QuizComponent
+public sealed class Question : QuizComponent, IAggregateRoot
 {
+    // DDD: Aggregate - Question manages Options through domain methods
     private readonly HashSet<QuestionOption> _options = new();
 
     public Guid QuizId { get; private set; }
@@ -27,7 +28,14 @@ public sealed class Question : QuizComponent
 
     public void AddOption(QuestionOption option)
     {
-        if (!_options.Contains(option)) _options.Add(option);
+        ArgumentNullException.ThrowIfNull(option);
+        _options.Add(option);
+    }
+
+    public void RemoveOption(QuestionOption option)
+    {
+        ArgumentNullException.ThrowIfNull(option);
+        _options.Remove(option);
     }
 
     public QuestionOption? GetCorrectOption() => _options.FirstOrDefault(o => o.IsCorrect);

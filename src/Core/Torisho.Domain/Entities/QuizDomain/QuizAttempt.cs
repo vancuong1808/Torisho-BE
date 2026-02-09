@@ -5,6 +5,7 @@ namespace Torisho.Domain.Entities.QuizDomain;
 
 public sealed class QuizAttempt : BaseEntity, IAggregateRoot
 {
+    // DDD: Aggregate - QuizAttempt manages Answers through domain methods
     private readonly HashSet<QuizAnswer> _answers = new();
 
     public Guid UserId { get; private set; }
@@ -47,7 +48,20 @@ public sealed class QuizAttempt : BaseEntity, IAggregateRoot
         {
             { "score", Score },
             { "startedAt", StartedAt },
-            { "completedAt", CompletedAt }
+            { "completedAt", CompletedAt },
+            { "totalQuestions", _answers.Count },
+            { "correctAnswers", _answers.Count(a => a.IsCorrect) }
         };
+    }
+
+    public void AddAnswer(QuizAnswer answer)
+    {
+        ArgumentNullException.ThrowIfNull(answer);
+        
+        // Business rule: không answer 2 lần cùng question
+        if (_answers.Any(a => a.QuestionId == answer.QuestionId))
+            throw new InvalidOperationException("Question already answered");
+            
+        _answers.Add(answer);
     }
 }

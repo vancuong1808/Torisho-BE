@@ -22,4 +22,14 @@ public sealed class RoomParticipant : BaseEntity
         RoomId = roomId;
         JoinedAt = DateTime.UtcNow;
     }
+
+    public void Leave()
+    {
+        LeftAt = DateTime.UtcNow;
+    }
+
+    public bool IsActive()
+    {
+        return !LeftAt.HasValue;
+    }
 }

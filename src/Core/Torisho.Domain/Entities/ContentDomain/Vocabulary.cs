@@ -5,10 +5,10 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.ContentDomain;
 
-public sealed class Vocabulary : LearningContent, IAggregateRoot
+public sealed class Vocabulary : LearningContent
 {
     public Guid DictionaryEntryId { get; private set; }
-    public DictionaryEntry DictionaryEntry { get; private set; } = default!;
+    public DictionaryEntry DictionaryEntry { get; private set; } = null!;
 
     private Vocabulary() { }
 

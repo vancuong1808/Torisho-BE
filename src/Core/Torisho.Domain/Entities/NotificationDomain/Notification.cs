@@ -3,19 +3,19 @@ using Torisho.Domain.Entities.UserDomain;
 
 namespace Torisho.Domain.Entities.NotificationDomain;
 
-public sealed class Notification : BaseEntity, IAggregateRoot
+public sealed class Notification : BaseEntity
 {
     public Guid UserId { get; private set; }
-    public User User { get; private set; } = default!;
+    public User User { get; private set; } = null!;
 
     public string Title { get; private set; } = default!;
     public string Message { get; private set; } = default!;
     public bool IsRead { get; private set; }
 
-    public string RelatedEntityType { get; private set; } = default!;
-    public Guid RelatedEntityId { get; private set; }
-    public string ActionUrl { get; private set; } = default!;
-    public DateTime SentAt { get; private set; }
+    public string? RelatedEntityType { get; set; }
+    public Guid? RelatedEntityId { get; set; }
+    public string? ActionUrl { get; set; }
+    public DateTime SentAt { get; set; }
 
     private Notification() { }
 

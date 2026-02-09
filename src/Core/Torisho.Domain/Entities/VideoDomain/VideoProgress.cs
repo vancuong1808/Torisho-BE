@@ -27,4 +27,24 @@ public sealed class VideoProgress : BaseEntity, IAggregateRoot
         TotalDuration = totalDuration;
         LastWatchedAt = DateTime.UtcNow;
     }
+
+    public void UpdatePosition(float position)
+    {
+        LastWatchedPosition = position;
+        WatchedDuration = position;
+        CompletionPercent = TotalDuration > 0 ? (position / TotalDuration * 100f) : 0f;
+        LastWatchedAt = DateTime.UtcNow;
+
+        if (CompletionPercent >= 95f)
+        {
+            MarkCompleted();
+        }
+    }
+
+    public void MarkCompleted()
+    {
+        IsCompleted = true;
+        CompletionPercent = 100f;
+        LastWatchedAt = DateTime.UtcNow;
+    }
 }

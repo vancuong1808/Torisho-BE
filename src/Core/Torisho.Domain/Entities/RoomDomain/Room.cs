@@ -5,6 +5,7 @@ namespace Torisho.Domain.Entities.RoomDomain;
 
 public sealed class Room : BaseEntity, IAggregateRoot
 {
+    // DDD: Aggregate - Room manages Participants through domain methods
     private readonly HashSet<RoomParticipant> _participants = new();
 
     public RoomStatus Status { get; private set; }
@@ -27,4 +28,35 @@ public sealed class Room : BaseEntity, IAggregateRoot
         AiCoachId = aiCoachId;
         Status = RoomStatus.Waiting;
     }
+
+    public void Open()
+    {
+        Status = RoomStatus.Waiting;
+    }
+
+    public void Close()
+    {
+        Status = RoomStatus.Completed;
+        EndedAt = DateTime.UtcNow;
+    }
+
+    public void Activate()
+    {
+        Status = RoomStatus.Active;
+        StartedAt = DateTime.UtcNow;
+    }
+
+    public void AddParticipant(RoomParticipant participant)
+    {
+        ArgumentNullException.ThrowIfNull(participant);
+        _participants.Add(participant);
+    }
+
+    public void RemoveParticipant(RoomParticipant participant)
+    {
+        ArgumentNullException.ThrowIfNull(participant);
+        _participants.Remove(participant);
+    }
+
+    public IReadOnlyCollection<RoomParticipant> GetParticipants() => Participants;
 }

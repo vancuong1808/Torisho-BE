@@ -1,4 +1,10 @@
 using Torisho.Domain.Common;
+using Torisho.Domain.Entities.DictionaryDomain;
+using Torisho.Domain.Entities.NotificationDomain;
+using Torisho.Domain.Entities.ProgressDomain;
+using Torisho.Domain.Entities.QuizDomain;
+using Torisho.Domain.Entities.RoomDomain;
+using Torisho.Domain.Entities.VideoDomain;
 using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.UserDomain;
@@ -9,23 +15,56 @@ public sealed class User : UserAuth, IAggregateRoot
     public UserStatus Status { get; private set; } = UserStatus.Active;
     public string? AvatarUrl { get; private set; }
 
-    public Guid RoleId { get; private set; }
-    public Role Role { get; private set; } = default!;
+    // DDD: Aggregate - User manages Roles through domain methods
+    private readonly HashSet<Role> _roles = new();
+    public IReadOnlyCollection<Role> Roles => _roles;
 
+    // Non-aggregate references - EF Core navigation properties
+    public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
+    public ICollection<QuizAttempt> QuizAttempts { get; private set; } = new List<QuizAttempt>();
+    public ICollection<LearningProgress> LearningProgresses { get; private set; } = new List<LearningProgress>();
+    public ICollection<RoomParticipant> RoomParticipants { get; private set; } = new List<RoomParticipant>();
+    public ICollection<DailyActivities> DailyActivities { get; private set; } = new List<DailyActivities>();
+    public ICollection<VideoProgress> VideoProgresses { get; private set; } = new List<VideoProgress>();
+    public ICollection<Notification> Notifications { get; private set; } = new List<Notification>();
     private User() { }
 
-    public User(string fullName, string username, string email, string passwordHash, Guid roleId)
+    public User(string fullName, string username, string email, string passwordHash)
         : base(username, email, passwordHash)
     {
         FullName = fullName;
-        RoleId = roleId;
     }
 
     public void AssignRole(Role role)
     {
-        Role = role;
-        RoleId = role.Id;
+        ArgumentNullException.ThrowIfNull(role);
+        _roles.Add(role);
     }
 
-    public override bool HasPermission(string code) => Role.HasPermission(code);
+    public void RemoveRole(Role role)
+    {
+        ArgumentNullException.ThrowIfNull(role);
+        _roles.Remove(role);
+    }
+
+    public IEnumerable<Permission> GetPermissions()
+    {
+        return _roles.SelectMany(r => r.Permissions).Distinct();
+    }
+
+    public override bool HasPermission(string code)
+    {
+        return _roles.Any(role => role.HasPermission(code));
+    }
+
+    public void UpdateProfile(string fullName, string? avatarUrl = null)
+    {
+        FullName = fullName;
+        if (avatarUrl != null) AvatarUrl = avatarUrl;
+    }
+
+    public void UpdateStatus(UserStatus status)
+    {
+        Status = status;
+    }
 }

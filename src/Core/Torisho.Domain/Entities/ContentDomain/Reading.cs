@@ -4,10 +4,10 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.ContentDomain;
 
-public sealed class Reading : LearningContent, IAggregateRoot
+public sealed class Reading : LearningContent
 {
-    public string Content { get; private set; } = default!;
-    public string Translation { get; private set; } = default!;
+    public string Content { get; set; } = string.Empty;
+    public string? Translation { get; set; }
 
     private Reading() { }
 

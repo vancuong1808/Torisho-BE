@@ -4,11 +4,11 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.ContentDomain;
 
-public sealed class Grammar : LearningContent, IAggregateRoot
+public sealed class Grammar : LearningContent
 {
-    public string Explanation { get; private set; } = default!;
-    public string Example { get; private set; } = default!;
-    public string UsageJson { get; private set; } = default!;
+    public string Explanation { get; set; } = string.Empty;
+    public string Example { get; set; } = string.Empty;
+    public string? UsageJson { get; set; }
 
     private Grammar() { }
 

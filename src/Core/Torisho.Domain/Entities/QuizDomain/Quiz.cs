@@ -3,8 +3,9 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.QuizDomain;
 
-public sealed class Quiz : QuizComponent, IAggregateRoot
+public sealed class Quiz : QuizComponent
 {
+    // DDD: Aggregate - Quiz manages Questions through domain methods
     private readonly HashSet<Question> _questions = new();
 
     public QuizType Type { get; private set; }
@@ -24,12 +25,14 @@ public sealed class Quiz : QuizComponent, IAggregateRoot
 
     public void AddQuestion(Question question)
     {
-        if (!_questions.Contains(question)) _questions.Add(question);
+        ArgumentNullException.ThrowIfNull(question);
+        _questions.Add(question);
     }
 
     public void RemoveQuestion(Question question)
     {
-        if (_questions.Contains(question)) _questions.Remove(question);
+        ArgumentNullException.ThrowIfNull(question);
+        _questions.Remove(question);
     }
 
     public float Evaluate(IDictionary<Guid, Guid> answers)
