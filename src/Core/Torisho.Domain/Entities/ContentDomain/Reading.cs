@@ -4,16 +4,19 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.ContentDomain;
 
-public sealed class Reading : LearningContent
+public sealed class Reading : LearningContent, IAggregateRoot
 {
     public string Content { get; set; } = string.Empty;
     public string? Translation { get; set; }
 
     private Reading() { }
 
-    public Reading(string title, Guid levelId, string content, string translation)
+    public Reading(string title, Guid levelId, string content, string? translation = null)
         : base(title, levelId)
     {
+        if (string.IsNullOrWhiteSpace(content))
+            throw new ArgumentException("Content is required", nameof(content));
+
         Content = content;
         Translation = translation;
     }

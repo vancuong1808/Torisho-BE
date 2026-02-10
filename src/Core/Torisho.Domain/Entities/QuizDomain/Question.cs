@@ -5,20 +5,27 @@ namespace Torisho.Domain.Entities.QuizDomain;
 public sealed class Question : QuizComponent, IAggregateRoot
 {
     // DDD: Aggregate - Question manages Options through domain methods
+    public IReadOnlyCollection<QuestionOption> Options => _options;
     private readonly HashSet<QuestionOption> _options = new();
 
     public Guid QuizId { get; private set; }
-    public Quiz Quiz { get; private set; } = default!;
+    public Quiz? Quiz { get; private set; }
 
-    public string Content { get; private set; } = default!;
+    public string Content { get; private set; } = string.Empty;
     public int Order { get; private set; }
 
-    public IReadOnlyCollection<QuestionOption> Options => _options;
 
     private Question() { }
 
     public Question(Guid quizId, string content, int order)
     {
+        if (quizId == Guid.Empty)
+            throw new ArgumentException("QuizId cannot be empty", nameof(quizId));
+        if (string.IsNullOrWhiteSpace(content))
+            throw new ArgumentException("Content is required", nameof(content));
+        if (order < 0)
+            throw new ArgumentException("Order must be non-negative", nameof(order));
+
         QuizId = quizId;
         Content = content;
         Order = order;

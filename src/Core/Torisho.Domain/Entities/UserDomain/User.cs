@@ -11,7 +11,7 @@ namespace Torisho.Domain.Entities.UserDomain;
 
 public sealed class User : UserAuth, IAggregateRoot
 {
-    public string FullName { get; private set; } = default!;
+    public string FullName { get; private set; } = string.Empty;
     public UserStatus Status { get; private set; } = UserStatus.Active;
     public string? AvatarUrl { get; private set; }
 
@@ -32,6 +32,9 @@ public sealed class User : UserAuth, IAggregateRoot
     public User(string fullName, string username, string email, string passwordHash)
         : base(username, email, passwordHash)
     {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("FullName is required", nameof(fullName));
+
         FullName = fullName;
     }
 
@@ -59,6 +62,9 @@ public sealed class User : UserAuth, IAggregateRoot
 
     public void UpdateProfile(string fullName, string? avatarUrl = null)
     {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("FullName is required", nameof(fullName));
+
         FullName = fullName;
         if (avatarUrl != null) AvatarUrl = avatarUrl;
     }

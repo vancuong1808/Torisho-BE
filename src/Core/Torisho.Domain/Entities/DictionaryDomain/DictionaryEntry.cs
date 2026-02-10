@@ -7,8 +7,8 @@ namespace Torisho.Domain.Entities.DictionaryDomain;
 
 public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
 {
-    public string Keyword { get; private set; } = default!;
-    public string Reading { get; private set; } = default!;
+    public string Keyword { get; private set; } = string.Empty;
+    public string Reading { get; private set; } = string.Empty;
     public JLPTLevel Jlpt { get; private set; }
     public string? MeaningsJson { get; set; }
     public string? ExamplesJson { get; set; } 
@@ -19,12 +19,17 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
 
     private DictionaryEntry() { }
 
-    public DictionaryEntry(string keyword, string reading, JLPTLevel jlpt, string meaningsJson, string examplesJson)
+    public DictionaryEntry(string keyword, string reading, JLPTLevel jlpt, string? meaningsJson = null, string? examplesJson = null)
     {
+        if (string.IsNullOrWhiteSpace(keyword))
+            throw new ArgumentException("Keyword is required", nameof(keyword));
+        if (string.IsNullOrWhiteSpace(reading))
+            throw new ArgumentException("Reading is required", nameof(reading));
+
         Keyword = keyword;
         Reading = reading;
         Jlpt = jlpt;
-        MeaningsJson= meaningsJson;
+        MeaningsJson = meaningsJson;
         ExamplesJson = examplesJson;
     }
 

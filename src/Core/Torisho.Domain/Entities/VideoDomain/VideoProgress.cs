@@ -6,10 +6,10 @@ namespace Torisho.Domain.Entities.VideoDomain;
 public sealed class VideoProgress : BaseEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
-    public User User { get; private set; } = default!;
+    public User? User { get; private set; }
 
     public Guid VideoLessonId { get; private set; }
-    public VideoLesson VideoLesson { get; private set; } = default!;
+    public VideoLesson? VideoLesson { get; private set; }
 
     public float LastWatchedPosition { get; private set; }
     public float WatchedDuration { get; private set; }
@@ -22,6 +22,13 @@ public sealed class VideoProgress : BaseEntity, IAggregateRoot
 
     public VideoProgress(Guid userId, Guid videoLessonId, float totalDuration)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+        if (videoLessonId == Guid.Empty)
+            throw new ArgumentException("VideoLessonId cannot be empty", nameof(videoLessonId));
+        if (totalDuration <= 0)
+            throw new ArgumentException("TotalDuration must be positive", nameof(totalDuration));
+
         UserId = userId;
         VideoLessonId = videoLessonId;
         TotalDuration = totalDuration;
@@ -30,6 +37,9 @@ public sealed class VideoProgress : BaseEntity, IAggregateRoot
 
     public void UpdatePosition(float position)
     {
+        if (position < 0)
+            throw new ArgumentException("Position must be non-negative", nameof(position));
+
         LastWatchedPosition = position;
         WatchedDuration = position;
         CompletionPercent = TotalDuration > 0 ? (position / TotalDuration * 100f) : 0f;

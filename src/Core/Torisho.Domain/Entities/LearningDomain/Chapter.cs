@@ -5,10 +5,10 @@ namespace Torisho.Domain.Entities.LearningDomain;
 public sealed class Chapter : BaseEntity
 {
     public Guid LevelId { get; private set; }
-    public Level Level { get; private set; } = default!;
+    public Level? Level { get; private set; }
 
-    public string Title { get; private set; } = default!;
-    public string Description { get; private set; } = default!;
+    public string Title { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
     public int Order { get; private set; }
     public float RequiredProgressPercent { get; set; }
     public string? ThumbnailUrl { get; set; }
@@ -19,8 +19,17 @@ public sealed class Chapter : BaseEntity
 
     private Chapter() { }
 
-    public Chapter(Guid levelId, string title, string description, int order, float requiredProgressPercent, string thumbnailUrl)
+    public Chapter(Guid levelId, string title, string? description, int order, float requiredProgressPercent = 100f, string? thumbnailUrl = null)
     {
+        if (levelId == Guid.Empty)
+            throw new ArgumentException("LevelId cannot be empty", nameof(levelId));
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title is required", nameof(title));
+        if (order < 0)
+            throw new ArgumentException("Order must be non-negative", nameof(order));
+        if (requiredProgressPercent < 0 || requiredProgressPercent > 100)
+            throw new ArgumentException("RequiredProgressPercent must be between 0 and 100", nameof(requiredProgressPercent));
+
         LevelId = levelId;
         Title = title;
         Description = description;

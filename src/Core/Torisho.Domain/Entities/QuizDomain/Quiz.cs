@@ -17,6 +17,9 @@ public sealed class Quiz : QuizComponent
 
     public Quiz(QuizType type, Guid targetContentId)
     {
+        if (targetContentId == Guid.Empty)
+            throw new ArgumentException("TargetContentId cannot be empty", nameof(targetContentId));
+
         Type = type;
         TargetContentId = targetContentId;
     }

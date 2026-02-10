@@ -6,11 +6,11 @@ public sealed class Role : BaseEntity
 {
     // DDD: Aggregate - Role manages Permissions through domain methods
     private readonly HashSet<Permission> _permissions = new();
-
-    public string Name { get; private set; } = default!;
-    public string Description { get; private set; } = default!;
-
     public IReadOnlyCollection<Permission> Permissions => _permissions;
+
+    public string? Name { get; private set; }
+    public string? Description { get; private set; }
+
 
     private Role() { }
 

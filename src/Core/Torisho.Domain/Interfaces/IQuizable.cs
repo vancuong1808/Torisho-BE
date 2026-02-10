@@ -4,6 +4,6 @@ namespace Torisho.Domain.Interfaces;
 
 public interface IQuizable
 {
-    Quiz GenerateQuiz();
+    Quiz? GenerateQuiz();
     bool HasQuiz();
 }

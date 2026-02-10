@@ -6,7 +6,7 @@ namespace Torisho.Domain.Entities.ProgressDomain;
 public sealed class DailyActivities : BaseEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
-    public User User { get; private set; } = default!;
+    public User? User { get; private set; }
 
     public DateOnly ActivityDate { get; private set; }
 
@@ -30,6 +30,9 @@ public sealed class DailyActivities : BaseEntity, IAggregateRoot
 
     public DailyActivities(Guid userId, DateOnly activityDate, string? activityDetailsJson = null)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+
         UserId = userId;
         ActivityDate = activityDate;
         ActivityDetailsJson = activityDetailsJson;
@@ -78,6 +81,9 @@ public sealed class DailyActivities : BaseEntity, IAggregateRoot
 
     public void CompleteDailyChallenge(float score)
     {
+        if (score < 0 || score > 100)
+            throw new ArgumentException("Score must be between 0 and 100", nameof(score));
+
         DailyChallengeCompleted = true;
         DailyChallengeScore = score;
         TotalPoints = CalculatePoints();
@@ -85,6 +91,8 @@ public sealed class DailyActivities : BaseEntity, IAggregateRoot
 
     public void AddMinutes(int minutes)
     {
+        if (minutes < 0)
+            throw new ArgumentException("Minutes must be non-negative", nameof(minutes));
         TotalMinutes += minutes;
     }
 }

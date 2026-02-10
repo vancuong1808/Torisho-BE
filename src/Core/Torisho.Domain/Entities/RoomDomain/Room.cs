@@ -7,17 +7,14 @@ public sealed class Room : BaseEntity, IAggregateRoot
 {
     // DDD: Aggregate - Room manages Participants through domain methods
     private readonly HashSet<RoomParticipant> _participants = new();
-
+    public IReadOnlyCollection<RoomParticipant> Participants => _participants;
     public RoomStatus Status { get; private set; }
     public RoomType RoomType { get; private set; }
     public Guid? AiCoachId { get; private set; }
     public string? Transcript { get; private set; }
-
     public DateTime ScheduledAt { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? EndedAt { get; private set; }
-
-    public IReadOnlyCollection<RoomParticipant> Participants => _participants;
 
     private Room() { }
 

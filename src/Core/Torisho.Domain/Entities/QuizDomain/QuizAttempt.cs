@@ -7,23 +7,24 @@ public sealed class QuizAttempt : BaseEntity, IAggregateRoot
 {
     // DDD: Aggregate - QuizAttempt manages Answers through domain methods
     private readonly HashSet<QuizAnswer> _answers = new();
-
+    public IReadOnlyCollection<QuizAnswer> Answers => _answers;
     public Guid UserId { get; private set; }
-    public User User { get; private set; } = default!;
-
+    public User? User { get; private set; }
     public Guid QuizId { get; private set; }
-    public Quiz Quiz { get; private set; } = default!;
-
+    public Quiz? Quiz { get; private set; }
     public float Score { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
-
-    public IReadOnlyCollection<QuizAnswer> Answers => _answers;
 
     private QuizAttempt() { }
 
     public QuizAttempt(Guid userId, Guid quizId)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+        if (quizId == Guid.Empty)
+            throw new ArgumentException("QuizId cannot be empty", nameof(quizId));
+
         UserId = userId;
         QuizId = quizId;
         StartedAt = DateTime.UtcNow;

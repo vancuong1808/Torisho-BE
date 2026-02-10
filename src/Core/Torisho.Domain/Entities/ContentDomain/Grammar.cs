@@ -4,7 +4,7 @@ using Torisho.Domain.Enums;
 
 namespace Torisho.Domain.Entities.ContentDomain;
 
-public sealed class Grammar : LearningContent
+public sealed class Grammar : LearningContent, IAggregateRoot
 {
     public string Explanation { get; set; } = string.Empty;
     public string Example { get; set; } = string.Empty;
@@ -12,9 +12,14 @@ public sealed class Grammar : LearningContent
 
     private Grammar() { }
 
-    public Grammar(string title, Guid levelId, string explanation, string example, string usageJson)
+    public Grammar(string title, Guid levelId, string explanation, string example, string? usageJson = null)
         : base(title, levelId)
     {
+        if (string.IsNullOrWhiteSpace(explanation))
+            throw new ArgumentException("Explanation is required", nameof(explanation));
+        if (string.IsNullOrWhiteSpace(example))
+            throw new ArgumentException("Example is required", nameof(example));
+
         Explanation = explanation;
         Example = example;
         UsageJson = usageJson;

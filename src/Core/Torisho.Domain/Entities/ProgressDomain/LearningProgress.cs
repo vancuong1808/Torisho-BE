@@ -7,10 +7,10 @@ namespace Torisho.Domain.Entities.ProgressDomain;
 public sealed class LearningProgress : BaseEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
-    public User User { get; private set; } = default!;
+    public User? User { get; private set; }
 
     public Guid LevelId { get; private set; }
-    public Level Level { get; private set; } = default!;
+    public Level? Level { get; private set; }
 
     public float VocabularyProgress { get; private set; }
     public float GrammarProgress { get; private set; }
@@ -23,6 +23,11 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
 
     public LearningProgress(Guid userId, Guid levelId)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+        if (levelId == Guid.Empty)
+            throw new ArgumentException("LevelId cannot be empty", nameof(levelId));
+
         UserId = userId;
         LevelId = levelId;
         LastUpdated = DateTime.UtcNow;
@@ -30,6 +35,11 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
 
     public void UpdateSkillProgress(string skill, float value)
     {
+        if (string.IsNullOrWhiteSpace(skill))
+            throw new ArgumentException("Skill is required", nameof(skill));
+        if (value < 0 || value > 100)
+            throw new ArgumentException("Value must be between 0 and 100", nameof(value));
+
         switch (skill.ToLower())
         {
             case "vocabulary":
