@@ -88,3 +88,4 @@ yarn-error.log*
 # ===== Docker (future use) =====
 # Local environment / secrets
 .env
+.appsettings.Development.json

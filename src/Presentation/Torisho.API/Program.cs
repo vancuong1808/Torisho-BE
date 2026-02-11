@@ -1,4 +1,43 @@
+using Microsoft.EntityFrameworkCore;
+using Torisho.Application;
+using Torisho.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// add DbContext 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseMySql(
+        connectionString, 
+        ServerVersion.AutoDetect(connectionString),
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorNumbersToAdd: null
+            );
+
+            // Command timeout
+            mySqlOptions.CommandTimeout(30);
+
+            mySqlOptions.MigrationsAssembly("Torisho.Infrastructure");
+        }
+    );
+
+    // Enable sensitive data logging (Development only)
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+});
+
+// Register IDataContext for Application layer
+builder.Services.AddScoped<IDataContext>(provider => 
+    provider.GetRequiredService<DataContext>());
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -14,6 +53,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Weather forecast endpoint
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
