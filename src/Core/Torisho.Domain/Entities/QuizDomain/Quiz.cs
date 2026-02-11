@@ -1,9 +1,8 @@
 using Torisho.Domain.Common;
 using Torisho.Domain.Enums;
-
 namespace Torisho.Domain.Entities.QuizDomain;
 
-public sealed class Quiz : QuizComponent
+public sealed class Quiz : QuizComponent, IAggregateRoot
 {
     // DDD: Aggregate - Quiz manages Questions through domain methods
     private readonly HashSet<Question> _questions = new();
