@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using Torisho.Application;
+using Torisho.Application.Services;
 using Torisho.Infrastructure;
+using Torisho.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +42,31 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped<IDataContext>(provider => 
     provider.GetRequiredService<DataContext>());
 
+// Configure Redis
+var redisConfig = builder.Configuration.GetSection("Redis");
+var redisHost = redisConfig["Host"];
+var redisPort = redisConfig["Port"];
+var redisPassword = redisConfig["Password"];
+var redisDatabase = int.Parse(redisConfig["Database"] ?? "0");
+
+var redisConnectionString = $"{redisHost}:{redisPort},password={redisPassword},abortConnect=false";
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = ConfigurationOptions.Parse(redisConnectionString);
+    configuration.ConnectTimeout = int.Parse(redisConfig["ConnectTimeout"] ?? "5000");
+    configuration.SyncTimeout = int.Parse(redisConfig["SyncTimeout"] ?? "5000");
+    configuration.AbortOnConnectFail = bool.Parse(redisConfig["AbortOnConnectFail"] ?? "false");
+    
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
+// Register Redis Service
+builder.Services.AddScoped<IRedisService, RedisService>();
+
 // Add services to the container.
+builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -52,6 +79,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Map controllers
+app.MapControllers();
 
 // Weather forecast endpoint
 var summaries = new[]
