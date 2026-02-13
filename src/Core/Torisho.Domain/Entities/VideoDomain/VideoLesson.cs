@@ -8,7 +8,7 @@ namespace Torisho.Domain.Entities.VideoDomain;
 public sealed class VideoLesson : LearningContent, IAggregateRoot
 {
     public string? Description { get; private set; }
-    public string ThumbnailUrl { get; private set; } = string.Empty;
+    public string? ThumbnailUrl { get; private set; }
     public string VideoUrl { get; private set; } = string.Empty;
     public int Duration { get; private set; }
     public int Order { get; private set; }
@@ -24,11 +24,9 @@ public sealed class VideoLesson : LearningContent, IAggregateRoot
 
     private VideoLesson() { }
 
-    public VideoLesson(string title, Guid levelId, string? description, string thumbnailUrl, string videoUrl, int duration, int order)
+    public VideoLesson(string title, Guid levelId, string? description, string? thumbnailUrl, string videoUrl, int duration, int order)
         : base(title, levelId)
     {
-        if (string.IsNullOrWhiteSpace(thumbnailUrl))
-            throw new ArgumentException("ThumbnailUrl is required", nameof(thumbnailUrl));
         if (string.IsNullOrWhiteSpace(videoUrl))
             throw new ArgumentException("VideoUrl is required", nameof(videoUrl));
         if (duration <= 0)
@@ -43,15 +41,23 @@ public sealed class VideoLesson : LearningContent, IAggregateRoot
         Order = order;
     }
 
-    public override void Display() { }
-
     public override Quiz CreateQuiz()
         => new(QuizType.Listening, Id);
 
-    public void Play() { }
+    public override void Display()
+    {
+        throw new NotImplementedException();
+    }
 
-    public void Pause() { }
+    public void Play()
+    {
+        throw new NotImplementedException();
+    }
 
+    public void Pause()
+    {
+        throw new NotImplementedException();
+    }
     public IReadOnlyCollection<Subtitle> GetSubtitles() => Subtitles;
 
     public void AddSubtitle(Subtitle subtitle)

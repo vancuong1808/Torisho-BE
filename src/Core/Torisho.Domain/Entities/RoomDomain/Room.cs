@@ -5,9 +5,6 @@ namespace Torisho.Domain.Entities.RoomDomain;
 
 public sealed class Room : BaseEntity, IAggregateRoot
 {
-    // DDD: Aggregate - Room manages Participants through domain methods
-    private readonly HashSet<RoomParticipant> _participants = new();
-    public IReadOnlyCollection<RoomParticipant> Participants => _participants;
     public RoomStatus Status { get; private set; }
     public RoomType RoomType { get; private set; }
     public Guid? AiCoachId { get; private set; }
@@ -15,6 +12,12 @@ public sealed class Room : BaseEntity, IAggregateRoot
     public DateTime ScheduledAt { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? EndedAt { get; private set; }
+
+    // DDD: Aggregate - Room manages Participants through domain methods
+    private readonly HashSet<RoomParticipant> _participants = new();
+    public IReadOnlyCollection<RoomParticipant> Participants => _participants;
+    private readonly HashSet<RoomMessage> _messages = new();
+    public IReadOnlyCollection<RoomMessage> Messages => _messages;
 
     private Room() { }
 

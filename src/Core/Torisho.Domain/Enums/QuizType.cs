@@ -3,8 +3,9 @@ namespace Torisho.Domain.Enums;
 public enum QuizType
 {
     Vocabulary = 1,
-    Grammar = 2,
-    Reading = 3,
-    Listening = 4,
-    DailyChallenge = 5
+    Kanji = 2,
+    Grammar = 3,
+    Reading = 4,
+    Listening = 5,
+    DailyChallenge = 6
 }

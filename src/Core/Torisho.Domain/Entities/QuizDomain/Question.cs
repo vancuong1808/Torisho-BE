@@ -4,16 +4,15 @@ namespace Torisho.Domain.Entities.QuizDomain;
 
 public sealed class Question : QuizComponent, IAggregateRoot
 {
-    // DDD: Aggregate - Question manages Options through domain methods
-    public IReadOnlyCollection<QuestionOption> Options => _options;
-    private readonly HashSet<QuestionOption> _options = new();
-
     public Guid QuizId { get; private set; }
     public Quiz? Quiz { get; private set; }
 
     public string Content { get; private set; } = string.Empty;
     public int Order { get; private set; }
 
+    // DDD: Aggregate - Question manages Options through domain methods
+    public IReadOnlyCollection<QuestionOption> Options => _options;
+    private readonly HashSet<QuestionOption> _options = new();
 
     private Question() { }
 

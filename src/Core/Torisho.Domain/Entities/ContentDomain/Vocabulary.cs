@@ -21,7 +21,9 @@ public sealed class Vocabulary : LearningContent, IAggregateRoot
         DictionaryEntryId = dictionaryEntryId;
     }
 
-    public override void Display() { }
+    public override void Display() {
+        throw new NotImplementedException();
+    }
 
     public override Quiz CreateQuiz()
         => new(QuizType.Vocabulary, Id);

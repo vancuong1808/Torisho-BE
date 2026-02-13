@@ -5,9 +5,6 @@ namespace Torisho.Domain.Entities.QuizDomain;
 
 public sealed class QuizAttempt : BaseEntity, IAggregateRoot
 {
-    // DDD: Aggregate - QuizAttempt manages Answers through domain methods
-    private readonly HashSet<QuizAnswer> _answers = new();
-    public IReadOnlyCollection<QuizAnswer> Answers => _answers;
     public Guid UserId { get; private set; }
     public User? User { get; private set; }
     public Guid QuizId { get; private set; }
@@ -15,6 +12,10 @@ public sealed class QuizAttempt : BaseEntity, IAggregateRoot
     public float Score { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
+
+    // DDD: Aggregate - QuizAttempt manages Answers through domain methods
+    private readonly HashSet<QuizAnswer> _answers = new();
+    public IReadOnlyCollection<QuizAnswer> Answers => _answers;
 
     private QuizAttempt() { }
 

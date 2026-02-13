@@ -7,12 +7,12 @@ namespace Torisho.Domain.Entities.LearningDomain;
 
 public sealed class Level : BaseEntity, IProgressable, IAggregateRoot
 {
-    public JLPTLevel Code { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public int Order { get; private set; }
-    public float RequiredProgressPercent { get; set; }
-    public string? ThumbnailUrl { get; set; }
+    public float RequiredProgressPercent { get; private set; }
+    public string? ThumbnailUrl { get; private set; }
+    public JLPTLevel Code { get; private set; }
 
     // DDD: Aggregate - Level manages Chapters through domain methods
     private readonly HashSet<Chapter> _chapters = new();

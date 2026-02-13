@@ -7,13 +7,12 @@ namespace Torisho.Domain.Entities.LearningDomain;
 
 public sealed class Lesson : BaseEntity, IQuizable, IProgressable
 {
-    public Guid ChapterId { get; private set; }
-    public Chapter? Chapter { get; private set; }
-
     public string Title { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public LessonType Type { get; private set; }
     public int Order { get; private set; }
+    public Guid ChapterId { get; private set; }
+    public Chapter? Chapter { get; private set; }
     public LearningContent? Content { get; private set; }
     public Guid ContentId { get; private set; }
     public Guid? QuizId { get; private set; }
@@ -41,7 +40,10 @@ public sealed class Lesson : BaseEntity, IQuizable, IProgressable
         QuizId = quizId;
     }
 
-    public void Start() { }
+    public void Start()
+    {
+        throw new NotImplementedException();
+    }
     
     public void Complete(Guid userId)
     {

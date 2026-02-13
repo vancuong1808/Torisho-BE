@@ -6,14 +6,14 @@ namespace Torisho.Domain.Entities.ContentDomain;
 
 public sealed class Grammar : LearningContent, IAggregateRoot
 {
-    public string Explanation { get; set; } = string.Empty;
-    public string Example { get; set; } = string.Empty;
-    public string? UsageJson { get; set; }
+    public string Explanation { get; private set; } = string.Empty;
+    public string Example { get; private set; } = string.Empty;
+    public string? UsageJson { get; private set; }
 
     private Grammar() { }
 
-    public Grammar(string title, Guid levelId, string explanation, string example, string? usageJson = null)
-        : base(title, levelId)
+    public Grammar(string title, Guid levelId, string explanation, string example, 
+        string? usageJson = null) : base(title, levelId)
     {
         if (string.IsNullOrWhiteSpace(explanation))
             throw new ArgumentException("Explanation is required", nameof(explanation));
@@ -25,7 +25,10 @@ public sealed class Grammar : LearningContent, IAggregateRoot
         UsageJson = usageJson;
     }
 
-    public override void Display() { }
+    public override void Display()
+    {
+        throw new NotImplementedException();
+    }
 
     public override Quiz CreateQuiz()
         => new(QuizType.Grammar, Id);

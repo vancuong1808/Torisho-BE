@@ -4,14 +4,13 @@ namespace Torisho.Domain.Entities.LearningDomain;
 
 public sealed class Chapter : BaseEntity
 {
-    public Guid LevelId { get; private set; }
-    public Level? Level { get; private set; }
-
     public string Title { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public int Order { get; private set; }
-    public float RequiredProgressPercent { get; set; }
-    public string? ThumbnailUrl { get; set; }
+    public float RequiredProgressPercent { get; private set; }
+    public string? ThumbnailUrl { get; private set; }
+    public Guid LevelId { get; private set; }
+    public Level? Level { get; private set; }
     
     // DDD: Aggregate - Chapter manages Lessons through domain methods
     private readonly HashSet<Lesson> _lessons = new();
@@ -48,5 +47,10 @@ public sealed class Chapter : BaseEntity
     {
         ArgumentNullException.ThrowIfNull(lesson);
         _lessons.Remove(lesson);
+    }
+
+    public void UpdateRequiredProgress(float percent)
+    {
+        throw new NotImplementedException();
     }
 }

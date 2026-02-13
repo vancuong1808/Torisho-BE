@@ -6,8 +6,8 @@ namespace Torisho.Domain.Entities.ContentDomain;
 
 public sealed class Reading : LearningContent, IAggregateRoot
 {
-    public string Content { get; set; } = string.Empty;
-    public string? Translation { get; set; }
+    public string Content { get; private set; } = string.Empty;
+    public string? Translation { get; private set; }
 
     private Reading() { }
 
@@ -21,7 +21,10 @@ public sealed class Reading : LearningContent, IAggregateRoot
         Translation = translation;
     }
 
-    public override void Display() { }
+    public override void Display()
+    {
+        throw new NotImplementedException();
+    }
 
     public override Quiz CreateQuiz()
         => new(QuizType.Reading, Id);

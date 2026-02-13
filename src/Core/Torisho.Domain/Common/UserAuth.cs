@@ -23,7 +23,9 @@ public abstract class UserAuth : BaseEntity
     }
 
     public virtual bool Authenticate(string password)
-        => string.Equals(PasswordHash, password, StringComparison.Ordinal);
+    {
+        throw new NotImplementedException("Should use password hashing service");
+    }
 
     public virtual bool ValidateEmail()
         => Email.Contains("@", StringComparison.Ordinal);

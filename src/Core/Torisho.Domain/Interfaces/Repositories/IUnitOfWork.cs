@@ -15,6 +15,7 @@ public interface IUnitOfWork
 	IVideoLessonRepository VideoLessons { get; }
 	IVideoProgressRepository VideoProgresses { get; }
 	ILearningProgressRepository LearningProgress { get; }
+	IChapterProgressRepository ChapterProgress { get; }
 	IDailyActivitiesRepository DailyActivities { get; }
 
 	Task<int> SaveChangesAsync(CancellationToken ct = default);

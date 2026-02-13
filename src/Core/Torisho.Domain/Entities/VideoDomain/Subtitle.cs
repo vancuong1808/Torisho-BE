@@ -4,17 +4,18 @@ namespace Torisho.Domain.Entities.VideoDomain;
 
 public sealed class Subtitle : BaseEntity
 {
+    public string TextJp { get; private set; } = string.Empty;
+    public string TextVi { get; private set; } = string.Empty;
     public Guid VideoLessonId { get; private set; }
     public VideoLesson? VideoLesson { get; private set; }
 
     public float StartTime { get; private set; }
     public float EndTime { get; private set; }
-    public string TextJp { get; private set; } = string.Empty;
-    public string TextVi { get; private set; } = string.Empty;
 
     private Subtitle() { }
 
-    public Subtitle(Guid videoLessonId, float startTime, float endTime, string textJp, string textVi)
+    public Subtitle(Guid videoLessonId, float startTime, float endTime, string textJp, 
+        string textVi)
     {
         if (videoLessonId == Guid.Empty)
             throw new ArgumentException("VideoLessonId cannot be empty", nameof(videoLessonId));

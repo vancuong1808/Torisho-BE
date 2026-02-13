@@ -5,13 +5,11 @@ namespace Torisho.Domain.Entities.NotificationDomain;
 
 public sealed class Notification : BaseEntity
 {
-    public Guid UserId { get; private set; }
-    public User? User { get; private set; }
-
     public string Title { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
     public bool IsRead { get; private set; }
-
+    public Guid UserId { get; private set; }
+    public User? User { get; private set; }
     public string? RelatedEntityType { get; set; }
     public Guid? RelatedEntityId { get; set; }
     public string? ActionUrl { get; set; }
