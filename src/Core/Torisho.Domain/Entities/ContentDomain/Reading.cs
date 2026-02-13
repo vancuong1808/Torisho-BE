@@ -1,0 +1,31 @@
+using Torisho.Domain.Common;
+using Torisho.Domain.Entities.QuizDomain;
+using Torisho.Domain.Enums;
+
+namespace Torisho.Domain.Entities.ContentDomain;
+
+public sealed class Reading : LearningContent, IAggregateRoot
+{
+    public string Content { get; private set; } = string.Empty;
+    public string? Translation { get; private set; }
+
+    private Reading() { }
+
+    public Reading(string title, Guid levelId, string content, string? translation = null)
+        : base(title, levelId)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            throw new ArgumentException("Content is required", nameof(content));
+
+        Content = content;
+        Translation = translation;
+    }
+
+    public override void Display()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Quiz CreateQuiz()
+        => new(QuizType.Reading, Id);
+}
