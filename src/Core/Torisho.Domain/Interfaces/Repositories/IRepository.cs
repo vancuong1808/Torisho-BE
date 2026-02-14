@@ -11,7 +11,7 @@ public interface IRepository<T> where T : class, IAggregateRoot
     // Get entity by unique identifier
     Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default);
 
-    // Get all entities (use with caution for large datasets)
+    // Get all entities
     Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default);
 
     // Add new entity

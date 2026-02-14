@@ -11,15 +11,16 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
     public string Reading { get; private set; } = string.Empty;
     public JLPTLevel Jlpt { get; private set; }
     public string? MeaningsJson { get; private set; }
-    public string? ExamplesJson { get; private set; } 
+    public string? ExamplesJson { get; private set; }
 
     // Non-aggregate references - EF Core navigation properties
     public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
     public ICollection<Vocabulary> Vocabularies { get; private set; } = new List<Vocabulary>();
     public ICollection<Kanji> Kanjis { get; private set; } = new List<Kanji>();
+
     private DictionaryEntry() { }
 
-    public DictionaryEntry(string keyword, string reading, JLPTLevel jlpt, string? meaningsJson = null, 
+    public DictionaryEntry(string keyword, string reading, JLPTLevel jlpt, string? meaningsJson = null,
         string? examplesJson = null)
     {
         if (string.IsNullOrWhiteSpace(keyword))
@@ -36,10 +37,11 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
 
     public IEnumerable<object> Search(string keyword)
     {
-        if (string.IsNullOrWhiteSpace(keyword)) return Enumerable.Empty<object>();
-        
+        if (string.IsNullOrWhiteSpace(keyword))
+            return Enumerable.Empty<object>();
+
         var lowerKeyword = keyword.ToLower();
-        if (Keyword.ToLower().Contains(lowerKeyword) || 
+        if (Keyword.ToLower().Contains(lowerKeyword) ||
             Reading.ToLower().Contains(lowerKeyword))
         {
             return new[] { this };
@@ -51,7 +53,8 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
     {
         if (criteria.TryGetValue("jlpt", out var jlptValue) && jlptValue is JLPTLevel jlptLevel)
         {
-            if (Jlpt == jlptLevel) return new[] { this };
+            if (Jlpt == jlptLevel)
+                return new[] { this };
         }
         return Enumerable.Empty<object>();
     }

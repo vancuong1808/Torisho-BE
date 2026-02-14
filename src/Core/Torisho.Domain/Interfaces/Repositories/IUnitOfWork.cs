@@ -17,6 +17,7 @@ public interface IUnitOfWork
 	ILearningProgressRepository LearningProgress { get; }
 	IChapterProgressRepository ChapterProgress { get; }
 	IDailyActivitiesRepository DailyActivities { get; }
-
+	IVideoLessonCommentRepository VideoLessonComments { get; }
+	IDictionaryCommentRepository DictionaryComments { get; }
 	Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
