@@ -3,7 +3,7 @@ using Torisho.Application;
 using Torisho.Domain.Entities.UserDomain;
 using Torisho.Domain.Interfaces.Repositories;
 
-namespace Torisho.Infrastruture.Repositories;
+namespace Torisho.Infrastructure.Repositories;
 
 public class UserRepository : GenericRepository<User>, IUserRepository
 {
@@ -41,6 +41,12 @@ public class UserRepository : GenericRepository<User>, IUserRepository
                 .ThenInclude(ur => ur.Permissions) 
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
     }
+
+    public Task<User?> GetWithRolesAsync(Guid userId, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> IsEmailExistsAsync(string email, CancellationToken ct = default)
     {
         if(string.IsNullOrWhiteSpace(email))
