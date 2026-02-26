@@ -63,6 +63,12 @@ public class UnitOfWork : IUnitOfWork
     public IDailyActivitiesRepository DailyActivities => 
         _dailyActivities ??= new DailyActivitiesRepository(_context);
 
+    public IRefreshTokenRepository RefreshTokens => throw new NotImplementedException();
+
+    public IVideoLessonCommentRepository VideoLessonComments => throw new NotImplementedException();
+
+    public IDictionaryCommentRepository DictionaryComments => throw new NotImplementedException();
+
     // Transaction commit point
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
