@@ -1,10 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Torisho.Application;
+using Torisho.Application.Services.Auth;
+using Torisho.Domain.Interfaces.Repositories;
 using Torisho.Infrastructure;
+using Torisho.Infrastructure.Repositories;
+using Torisho.Infrastructure.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// add DbContext 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<DataContext>(options =>
@@ -19,15 +25,11 @@ builder.Services.AddDbContext<DataContext>(options =>
                 maxRetryDelay: TimeSpan.FromSeconds(5),
                 errorNumbersToAdd: null
             );
-
-            // Command timeout
             mySqlOptions.CommandTimeout(30);
-
             mySqlOptions.MigrationsAssembly("Torisho.Infrastructure");
         }
     );
 
-    // Enable sensitive data logging (Development only)
     if (builder.Environment.IsDevelopment())
     {
         options.EnableSensitiveDataLogging();
@@ -35,47 +37,63 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
 });
 
-// Register IDataContext for Application layer
 builder.Services.AddScoped<IDataContext>(provider => 
     provider.GetRequiredService<DataContext>());
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
-
-// Weather forecast endpoint
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

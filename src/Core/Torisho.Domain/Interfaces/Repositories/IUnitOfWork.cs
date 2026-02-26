@@ -6,6 +6,7 @@ namespace Torisho.Domain.Interfaces.Repositories;
 public interface IUnitOfWork
 {
 	IUserRepository Users { get; }
+	IRefreshTokenRepository RefreshTokens { get; }
 	IDictionaryEntryRepository DictionaryEntries { get; }
 	ILevelRepository Levels { get; }
 	IQuizRepository Quizzes { get; }
