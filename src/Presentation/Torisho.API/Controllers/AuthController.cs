@@ -11,10 +11,12 @@ namespace Torisho.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IWebHostEnvironment _env;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IWebHostEnvironment env)
     {
         _authService = authService;
+        _env = env;
     }
 
     [HttpPost("register")]
@@ -22,6 +24,15 @@ public class AuthController : ControllerBase
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(request?.Username))
+                return BadRequest(new { message = "Username is required" });
+            
+            if (string.IsNullOrWhiteSpace(request?.Email))
+                return BadRequest(new { message = "Email is required" });
+            
+            if (string.IsNullOrWhiteSpace(request?.Password))
+                return BadRequest(new { message = "Password is required" });
+            
             var response = await _authService.RegisterAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -44,6 +55,12 @@ public class AuthController : ControllerBase
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(request?.Username))
+                return BadRequest(new { message = "Username is required" });
+            
+            if (string.IsNullOrWhiteSpace(request?.Password))
+                return BadRequest(new { message = "Password is required" });
+            
             var response = await _authService.LoginAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -118,10 +135,10 @@ public class AuthController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = !_env.IsDevelopment(), // false in development, true in production
+            SameSite = _env.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Path = "/api/auth"
+            Path = "/"
         };
         
         Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
