@@ -11,6 +11,11 @@ public class VideoLessonRepository : GenericRepository<VideoLesson>, IVideoLesso
     {
     }
 
+    public Task<IEnumerable<VideoLesson>> GetByLevelAsync(Guid levelId, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<VideoLesson?> GetWithSubtitlesAsync(Guid videoLessonId, CancellationToken ct = default)
     {
         if (videoLessonId == Guid.Empty)
@@ -20,5 +25,10 @@ public class VideoLessonRepository : GenericRepository<VideoLesson>, IVideoLesso
         return await _dbSet
             .Include(vl => vl.Subtitles.OrderBy(s => s.StartTime))
             .FirstOrDefaultAsync(vl => vl.Id == videoLessonId, ct);
+    }
+
+    public Task<IEnumerable<VideoLesson>> SearchAsync(string searchTerm, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
     }
 }

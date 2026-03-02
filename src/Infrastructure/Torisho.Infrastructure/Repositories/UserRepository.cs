@@ -31,7 +31,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .FirstOrDefaultAsync(u => u.Username == username, ct);
     }
 
-    public async Task<User?> GetwithRolesAsync(Guid userId, CancellationToken ct = default)
+    public async Task<User?> GetWithRolesAsync(Guid userId, CancellationToken ct = default)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId cannot be empty", nameof(userId));
@@ -40,11 +40,6 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .Include(u => u.Roles)
                 .ThenInclude(ur => ur.Permissions) 
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
-    }
-
-    public Task<User?> GetWithRolesAsync(Guid userId, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<bool> IsEmailExistsAsync(string email, CancellationToken ct = default)

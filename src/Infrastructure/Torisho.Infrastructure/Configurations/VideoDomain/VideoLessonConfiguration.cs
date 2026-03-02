@@ -9,7 +9,7 @@ public class VideoLessonConfiguration : IEntityTypeConfiguration<VideoLesson>
     public void Configure(EntityTypeBuilder<VideoLesson> builder)
     {
         builder.ToTable("VideoLessons");
-        builder.HasKey(vl => vl.Id);
+        // Key is inherited from base class LearningContent -> BaseEntity
 
         builder.Property(vl => vl.Title)
             .IsRequired()
@@ -34,12 +34,9 @@ public class VideoLessonConfiguration : IEntityTypeConfiguration<VideoLesson>
         builder.Property(vl => vl.LevelId)
             .IsRequired();
 
-        // Indexes
-        builder.HasIndex(vl => vl.LevelId)
-            .HasDatabaseName("IX_VideoLessons_LevelId");
-
-        builder.HasIndex(vl => new { vl.LevelId, vl.Order })
-            .HasDatabaseName("IX_VideoLessons_LevelId_Order");
+        // Indexes - only on properties in VideoLessons table
+        builder.HasIndex(vl => vl.Order)
+            .HasDatabaseName("IX_VideoLessons_Order");
 
         // Relationships
         builder.HasMany(vl => vl.Subtitles)

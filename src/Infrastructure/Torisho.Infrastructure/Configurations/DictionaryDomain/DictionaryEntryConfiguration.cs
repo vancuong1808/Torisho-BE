@@ -44,8 +44,8 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
 
         // Relationship
         builder.HasMany(de => de.FlashCards)
-            .WithOne()
-            .HasForeignKey("DictionaryEntryId")
-            .OnDelete(DeleteBehavior.SetNull);
+            .WithOne(fc => fc.DictionaryEntry)
+            .HasForeignKey(fc => fc.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

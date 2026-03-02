@@ -33,19 +33,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.AvatarUrl)
             .HasMaxLength(500);
 
-        // Enum stored as string
-        builder.Property(u => u.Status)
-            .HasConversion<string>()
-            .HasMaxLength(20);
-
         // Timestamps
         builder.Property(u => u.CreatedAt)
             .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .ValueGeneratedOnAdd();
 
         builder.Property(u => u.UpdatedAt)
             .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            .ValueGeneratedOnAddOrUpdate();
 
         // Unique indexes for authentication
         builder.HasIndex(u => u.Email)
@@ -85,8 +80,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         // One-to-Many relationships
         builder.HasMany(u => u.FlashCards)
-            .WithOne()
-            .HasForeignKey("UserId")
+            .WithOne(fc => fc.User)
+            .HasForeignKey(fc => fc.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(u => u.QuizAttempts)

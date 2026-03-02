@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Domain.Entities.DictionaryDomain;
+using Torisho.Domain.Enums;
 using Torisho.Domain.Interfaces.Repositories;
 
 namespace Torisho.Infrastructure.Repositories;
@@ -32,4 +33,10 @@ public class DictionaryEntryRepository : GenericRepository<DictionaryEntry>, IDi
             .Take(50) // Limit results cho performance
             .ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<DictionaryEntry>> GetByJlptLevelAsync(JLPTLevel jlptLevel, CancellationToken ct = default)
+    {
+       throw new NotImplementedException();
+    }
+
 }

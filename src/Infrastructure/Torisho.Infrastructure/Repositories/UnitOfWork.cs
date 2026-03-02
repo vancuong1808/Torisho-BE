@@ -20,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
     private ILearningProgressRepository? _learningProgress;
     private IChapterProgressRepository? _chapterProgress;
     private IDailyActivitiesRepository? _dailyActivities;
+    private IRefreshTokenRepository? _refreshTokens;
 
     public UnitOfWork(IDataContext context)
     {
@@ -63,7 +64,8 @@ public class UnitOfWork : IUnitOfWork
     public IDailyActivitiesRepository DailyActivities => 
         _dailyActivities ??= new DailyActivitiesRepository(_context);
 
-    public IRefreshTokenRepository RefreshTokens => throw new NotImplementedException();
+    public IRefreshTokenRepository RefreshTokens => 
+        _refreshTokens ??= new RefreshTokenRepository(_context);
 
     public IVideoLessonCommentRepository VideoLessonComments => throw new NotImplementedException();
 
