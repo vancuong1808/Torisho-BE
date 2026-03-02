@@ -11,6 +11,8 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
         builder.ToTable("DictionaryEntries");
         builder.HasKey(de => de.Id);
 
+        builder.Property(de => de.Id).ValueGeneratedNever();
+
         builder.Property(de => de.Keyword)
             .IsRequired()
             .HasMaxLength(200);
@@ -22,6 +24,16 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
         builder.Property(de => de.Jlpt)
             .HasConversion<string>()
             .HasMaxLength(10);
+
+        builder.Property(de => de.IsCommon)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(de => de.SourceId)
+            .HasMaxLength(32);
+
+        builder.Property(de => de.RawJson)
+            .HasColumnType("json");
 
         builder.Property(de => de.MeaningsJson)
             .HasColumnType("json");
@@ -42,10 +54,33 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
         builder.HasIndex(de => new { de.Jlpt, de.Keyword })
             .HasDatabaseName("IX_DictionaryEntries_Jlpt_Keyword");
 
+        builder.HasIndex(de => de.IsCommon)
+            .HasDatabaseName("IX_DictionaryEntries_IsCommon");
+
+        builder.HasIndex(de => de.SourceId)
+            .IsUnique()
+            .HasDatabaseName("UX_DictionaryEntries_SourceId");
+
         // Relationship
+
         builder.HasMany(de => de.FlashCards)
             .WithOne(fc => fc.DictionaryEntry)
             .HasForeignKey(fc => fc.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(de => de.KanjiForms)
+            .WithOne()
+            .HasForeignKey(k => k.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(de => de.ReadingForms)
+            .WithOne()
+            .HasForeignKey(r => r.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(de => de.Definition)
+            .WithOne()
+            .HasForeignKey<DictionaryEntryDefinition>(d => d.DictionaryEntryId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
