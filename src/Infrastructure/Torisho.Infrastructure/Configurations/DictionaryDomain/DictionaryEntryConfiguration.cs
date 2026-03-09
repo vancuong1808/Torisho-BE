@@ -8,58 +8,76 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
 {
     public void Configure(EntityTypeBuilder<DictionaryEntry> builder)
     {
-        builder.ToTable("DictionaryEntries");
+        builder.ToTable("entries");
         builder.HasKey(de => de.Id);
 
         builder.Property(de => de.Id).ValueGeneratedNever();
 
+        builder.Property(de => de.CreatedAt)
+            .IsRequired()
+            .HasColumnName("created_at")
+            .ValueGeneratedOnAdd();
+
+        builder.Property(de => de.UpdatedAt)
+            .IsRequired()
+            .HasColumnName("updated_at")
+            .ValueGeneratedOnAddOrUpdate();
+
         builder.Property(de => de.Keyword)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasColumnName("primary_headword")
+            .HasMaxLength(100);
 
         builder.Property(de => de.Reading)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasColumnName("primary_reading")
+            .HasMaxLength(100);
 
         builder.Property(de => de.Jlpt)
             .HasConversion<string>()
+            .HasColumnName("jlpt")
             .HasMaxLength(10);
 
         builder.Property(de => de.IsCommon)
             .IsRequired()
+            .HasColumnName("is_common")
             .HasDefaultValue(false);
 
         builder.Property(de => de.SourceId)
+            .HasColumnName("source_id")
             .HasMaxLength(32);
 
         builder.Property(de => de.RawJson)
+            .HasColumnName("raw_json")
             .HasColumnType("json");
 
         builder.Property(de => de.MeaningsJson)
+            .HasColumnName("meanings_json")
             .HasColumnType("json");
 
         builder.Property(de => de.ExamplesJson)
+            .HasColumnName("examples_json")
             .HasColumnType("json");
 
         // Indexes for search performance
         builder.HasIndex(de => de.Keyword)
-            .HasDatabaseName("IX_DictionaryEntries_Keyword");
+            .HasDatabaseName("idx_primary_headword");
 
         builder.HasIndex(de => de.Reading)
-            .HasDatabaseName("IX_DictionaryEntries_Reading");
+            .HasDatabaseName("idx_primary_reading");
 
         builder.HasIndex(de => de.Jlpt)
-            .HasDatabaseName("IX_DictionaryEntries_Jlpt");
+            .HasDatabaseName("idx_jlpt");
 
         builder.HasIndex(de => new { de.Jlpt, de.Keyword })
-            .HasDatabaseName("IX_DictionaryEntries_Jlpt_Keyword");
+            .HasDatabaseName("idx_jlpt_primary_headword");
 
         builder.HasIndex(de => de.IsCommon)
-            .HasDatabaseName("IX_DictionaryEntries_IsCommon");
+            .HasDatabaseName("idx_entries_is_common");
 
         builder.HasIndex(de => de.SourceId)
             .IsUnique()
-            .HasDatabaseName("UX_DictionaryEntries_SourceId");
+            .HasDatabaseName("ux_entries_source_id");
 
         // Relationship
 

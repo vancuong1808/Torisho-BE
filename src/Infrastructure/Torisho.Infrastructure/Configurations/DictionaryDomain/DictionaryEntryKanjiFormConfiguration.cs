@@ -8,25 +8,31 @@ public sealed class DictionaryEntryKanjiFormConfiguration : IEntityTypeConfigura
 {
     public void Configure(EntityTypeBuilder<DictionaryEntryKanjiForm> builder)
     {
-        builder.ToTable("DictionaryEntryKanjis");
+        builder.ToTable("entry_kanji");
 
         builder.HasKey(x => new { x.DictionaryEntryId, x.KanjiText });
 
+        builder.Property(x => x.DictionaryEntryId)
+            .HasColumnName("entry_id");
+
         builder.Property(x => x.KanjiText)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasColumnName("kanji_text")
+            .HasMaxLength(100)
+            .UseCollation("utf8mb4_bin");
 
         builder.Property(x => x.IsCommon)
             .IsRequired()
+            .HasColumnName("is_common")
             .HasDefaultValue(false);
 
         builder.HasIndex(x => x.KanjiText)
-            .HasDatabaseName("IX_DictionaryEntryKanjis_KanjiText");
+            .HasDatabaseName("idx_kanji");
 
         builder.HasIndex(x => x.DictionaryEntryId)
-            .HasDatabaseName("IX_DictionaryEntryKanjis_DictionaryEntryId");
+            .HasDatabaseName("idx_entry_kanji_entry");
 
         builder.HasIndex(x => x.IsCommon)
-            .HasDatabaseName("IX_DictionaryEntryKanjis_IsCommon");
+            .HasDatabaseName("idx_entry_kanji_common");
     }
 }

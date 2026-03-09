@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260308063233_Dictionary_schema_v2")]
+    partial class Dictionary_schema_v2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,8 +181,7 @@ namespace Torisho.Infrastructure.Migrations
                     b.Property<string>("KanjiText")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("kanji_text")
-                        .UseCollation("utf8mb4_bin");
+                        .HasColumnName("kanji_text");
 
                     b.Property<bool>("IsCommon")
                         .ValueGeneratedOnAdd()
@@ -210,8 +212,7 @@ namespace Torisho.Infrastructure.Migrations
                     b.Property<string>("ReadingText")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("reading_text")
-                        .UseCollation("utf8mb4_bin");
+                        .HasColumnName("reading_text");
 
                     b.HasKey("DictionaryEntryId", "ReadingText");
 

@@ -8,18 +8,23 @@ public sealed class DictionaryEntryReadingFormConfiguration : IEntityTypeConfigu
 {
     public void Configure(EntityTypeBuilder<DictionaryEntryReadingForm> builder)
     {
-        builder.ToTable("DictionaryEntryReadings");
+        builder.ToTable("entry_reading");
 
         builder.HasKey(x => new { x.DictionaryEntryId, x.ReadingText });
 
+        builder.Property(x => x.DictionaryEntryId)
+            .HasColumnName("entry_id");
+
         builder.Property(x => x.ReadingText)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasColumnName("reading_text")
+            .HasMaxLength(100)
+            .UseCollation("utf8mb4_bin");
 
         builder.HasIndex(x => x.ReadingText)
-            .HasDatabaseName("IX_DictionaryEntryReadings_ReadingText");
+            .HasDatabaseName("idx_reading");
 
         builder.HasIndex(x => x.DictionaryEntryId)
-            .HasDatabaseName("IX_DictionaryEntryReadings_DictionaryEntryId");
+            .HasDatabaseName("idx_entry_reading_entry");
     }
 }
