@@ -1,6 +1,4 @@
 using System.Data;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Application.DTOs.Dictionary;
@@ -19,18 +17,15 @@ public sealed class DictionarySearchService : IDictionarySearchService
 
     public async Task<IReadOnlyList<WordSchemaDto>> SearchAsync(string keyword, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(keyword))
+        if (!DictionarySearchKeywordPolicy.TryCreate(keyword, out var search))
             return Array.Empty<WordSchemaDto>();
-
-        keyword = keyword.Trim();
 
         var sql = DictionarySearchSql.Query;
 
-        var prefix = keyword + "%";
-        var like = "%" + keyword + "%";
-        var keywordLower = keyword.ToLowerInvariant();
-        var regexLiteral = Regex.Escape(keywordLower);
-        var isLatin = IsLatinKeyword(keyword);
+        var prefix = search.Prefix;
+        var like = search.Like;
+        var keywordLower = search.LowerValue;
+        var regexLiteral = search.RegexLiteral;
 
         var dbContext = (DbContext)_context;
 
@@ -43,12 +38,13 @@ public sealed class DictionarySearchService : IDictionarySearchService
         command.CommandText = sql;
         command.CommandType = CommandType.Text;
 
-        AddParam(command, "@p_keyword", keyword);
+        AddParam(command, "@p_keyword", search.Value);
         AddParam(command, "@p_prefix", prefix);
         AddParam(command, "@p_like", like);
         AddParam(command, "@p_keyword_lower", keywordLower);
         AddParam(command, "@p_regex_literal", regexLiteral);
-        AddParam(command, "@p_is_latin", isLatin ? 1 : 0);
+        AddParam(command, "@p_is_latin", search.IsLatin ? 1 : 0);
+        AddParam(command, "@p_latin_len", search.Value.Length);
 
         var results = new List<WordSchemaDto>(capacity: 10);
 
@@ -58,7 +54,7 @@ public sealed class DictionarySearchService : IDictionarySearchService
                 var id = ReadGuid(reader, 0);
                 var rawJson = reader.IsDBNull(1) ? null : reader.GetString(1);
 
-                var word = TryParseRawWord(rawJson);
+                var word = DictionaryRawJsonMapper.TryParseWord(rawJson);
                 if (word is null)
                     continue;
 
@@ -93,148 +89,4 @@ public sealed class DictionarySearchService : IDictionarySearchService
         command.Parameters.Add(p);
     }
 
-    private static bool IsLatinKeyword(string keyword)
-    {
-        foreach (var ch in keyword)
-        {
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
-                return true;
-        }
-        return false;
-    }
-
-    private static WordSchemaDto? TryParseRawWord(string? rawJson)
-    {
-        if (string.IsNullOrWhiteSpace(rawJson))
-            return null;
-
-        try
-        {
-            using var doc = JsonDocument.Parse(rawJson);
-            var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object)
-                return null;
-
-            var (kanji, kana, isCommon) = ExtractPrimaryForms(root);
-            var senses = ExtractSenses(root);
-
-            // Id will be filled from DB row.
-            return new WordSchemaDto(
-                Id: Guid.Empty,
-                Kanji: kanji,
-                Kana: kana ?? string.Empty,
-                IsCommon: isCommon,
-                Senses: senses);
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
-
-    private static (string? Kanji, string? Kana, bool IsCommon) ExtractPrimaryForms(JsonElement wordObj)
-    {
-        string? kanjiText = null;
-        string? kanaText = null;
-        var isCommon = false;
-
-        if (wordObj.TryGetProperty("kanji", out var kanjiList) && kanjiList.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var item in kanjiList.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Object)
-                    continue;
-
-                if (kanjiText is null && item.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
-                    kanjiText = textEl.GetString();
-
-                if (item.TryGetProperty("common", out var commonEl) && commonEl.ValueKind == JsonValueKind.True)
-                    isCommon = true;
-            }
-        }
-
-        if (wordObj.TryGetProperty("kana", out var kanaList) && kanaList.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var item in kanaList.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Object)
-                    continue;
-
-                if (kanaText is null && item.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
-                    kanaText = textEl.GetString();
-
-                if (item.TryGetProperty("common", out var commonEl) && commonEl.ValueKind == JsonValueKind.True)
-                    isCommon = true;
-            }
-        }
-
-        if (kanaText is null)
-            kanaText = string.Empty;
-
-        return (kanjiText, kanaText, isCommon);
-    }
-
-    private static IReadOnlyList<SenseDto> ExtractSenses(JsonElement wordObj)
-    {
-        if (!wordObj.TryGetProperty("sense", out var senseList) || senseList.ValueKind != JsonValueKind.Array)
-            return Array.Empty<SenseDto>();
-
-        var senses = new List<SenseDto>();
-
-        foreach (var sense in senseList.EnumerateArray())
-        {
-            if (sense.ValueKind != JsonValueKind.Object)
-                continue;
-
-            var pos = new List<string>();
-            if (sense.TryGetProperty("partOfSpeech", out var posList) && posList.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var p in posList.EnumerateArray())
-                {
-                    if (p.ValueKind == JsonValueKind.String)
-                    {
-                        var s = p.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            pos.Add(s);
-                    }
-                }
-            }
-
-            var glosses = new List<string>();
-            if (sense.TryGetProperty("gloss", out var glossList) && glossList.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var g in glossList.EnumerateArray())
-                {
-                    if (g.ValueKind == JsonValueKind.String)
-                    {
-                        var s = g.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            glosses.Add(s);
-                        continue;
-                    }
-
-                    if (g.ValueKind != JsonValueKind.Object)
-                        continue;
-
-                    var lang = g.TryGetProperty("lang", out var langEl) && langEl.ValueKind == JsonValueKind.String
-                        ? langEl.GetString()
-                        : null;
-
-                    if (!string.IsNullOrWhiteSpace(lang) && !string.Equals(lang, "eng", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    if (g.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
-                    {
-                        var s = textEl.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            glosses.Add(s);
-                    }
-                }
-            }
-
-            senses.Add(new SenseDto(pos, glosses));
-        }
-
-        return senses;
-    }
 }
