@@ -38,7 +38,12 @@ SELECT
     MAX(flags.has_exact_jp) AS has_exact_jp,
 
     MAX(LOWER(d.gloss_text) = @p_keyword_lower) AS exact_gloss,
-    MAX(LOWER(d.gloss_text) REGEXP CONCAT('(^|; )', @p_regex_literal, '($|;| .)')) AS exact_gloss_segment,
+    
+    -- Fixed: 'Mismatched parenthesis'
+    -- Matches keyword as a primary segment (surrounded by ; , ( or string boundaries)
+    MAX(LOWER(d.gloss_text) REGEXP CONCAT('(^|;)[ ]*', @p_regex_literal, '([ ]*($|;|,|\\())')) AS primary_gloss_segment,
+    
+    -- Matches keyword as a whole word
     MAX(LOWER(d.gloss_text) REGEXP CONCAT('(^|[^0-9a-z])', @p_regex_literal, '([^0-9a-z]|$)')) AS exact_gloss_word,
     MAX(LOWER(d.gloss_text) LIKE CONCAT(@p_keyword_lower, '%')) AS prefix_gloss,
     MAX(d.gloss_text LIKE @p_like) AS like_gloss,
@@ -57,7 +62,17 @@ JOIN (
       WHERE reading_text = @p_keyword OR reading_text LIKE @p_prefix OR @p_keyword LIKE CONCAT(reading_text, '%')
     UNION
     SELECT entry_id FROM entry_definitions
-     WHERE gloss_text LIKE @p_like OR MATCH(gloss_text) AGAINST (@p_keyword IN NATURAL LANGUAGE MODE)
+      WHERE (
+          @p_is_latin = 0
+          AND gloss_text LIKE @p_like
+      ) OR (
+          @p_is_latin = 1
+          AND @p_latin_len >= 3
+          AND (
+                LOWER(gloss_text) REGEXP CONCAT('(^|[^0-9a-z])', @p_regex_literal, '([^0-9a-z]|$)')
+                OR MATCH(gloss_text) AGAINST (@p_keyword IN NATURAL LANGUAGE MODE)
+          )
+      )
 ) m ON m.entry_id = e.id
 CROSS JOIN (
     SELECT (
@@ -72,22 +87,21 @@ GROUP BY
     e.primary_headword
 
 HAVING
-    (has_exact_jp = 0 OR exact_kj = 1 OR exact_rd = 1)
+    (@p_is_latin = 1 OR has_exact_jp = 0 OR exact_kj = 1 OR exact_rd = 1)
 
 ORDER BY
     CASE WHEN @p_is_latin = 0 THEN exact_kj ELSE 0 END DESC,
     CASE WHEN @p_is_latin = 0 THEN exact_rd ELSE 0 END DESC,
-    CASE WHEN @p_is_latin = 1 THEN exact_gloss_segment ELSE 0 END DESC,
     CASE WHEN @p_is_latin = 1 THEN exact_gloss ELSE 0 END DESC,
+    CASE WHEN @p_is_latin = 1 THEN primary_gloss_segment ELSE 0 END DESC,
     is_common DESC,
+    CASE WHEN @p_is_latin = 1 THEN exact_gloss_word ELSE 0 END DESC,
     entry_prefix_of_keyword_kj DESC,
     entry_prefix_of_keyword_rd DESC,
     prefix_kj DESC,
     prefix_rd DESC,
-    exact_gloss_segment DESC,
-    exact_gloss_word DESC,
     prefix_gloss DESC,
-    COALESCE(like_gloss_len, 999999) ASC,
+    CASE WHEN exact_gloss_word = 0 AND exact_gloss = 0 THEN COALESCE(like_gloss_len, 999999) ELSE 0 END ASC,
     ft_score DESC,
     like_gloss DESC,
     hw_len ASC,
