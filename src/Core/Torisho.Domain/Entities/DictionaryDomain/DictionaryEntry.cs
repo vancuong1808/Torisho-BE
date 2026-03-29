@@ -75,6 +75,12 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void SetExamplesJson(string? examplesJson)
+    {
+        ExamplesJson = examplesJson;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void ReplaceKanjiForms(IEnumerable<(string Text, bool IsCommon)> forms)
     {
         KanjiForms.Clear();

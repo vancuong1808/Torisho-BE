@@ -18,7 +18,7 @@ internal static class DictionaryRawJsonMapper
                 return null;
 
             var (kanji, kana, isCommon) = ExtractPrimaryForms(root);
-            var senses = ExtractSenses(root);
+            var primaryMeaning = ExtractPrimaryMeaning(root);
 
             // Id will be filled from DB row.
             return new WordSchemaDto(
@@ -26,7 +26,7 @@ internal static class DictionaryRawJsonMapper
                 Kanji: kanji,
                 Kana: kana ?? string.Empty,
                 IsCommon: isCommon,
-                Senses: senses);
+                PrimaryMeaning: primaryMeaning);
         }
         catch (JsonException)
         {
@@ -76,67 +76,48 @@ internal static class DictionaryRawJsonMapper
         return (kanjiText, kanaText, isCommon);
     }
 
-    private static IReadOnlyList<SenseDto> ExtractSenses(JsonElement wordObj)
+    private static string ExtractPrimaryMeaning(JsonElement wordObj)
     {
         if (!wordObj.TryGetProperty("sense", out var senseList) || senseList.ValueKind != JsonValueKind.Array)
-            return Array.Empty<SenseDto>();
-
-        var senses = new List<SenseDto>();
+            return string.Empty;
 
         foreach (var sense in senseList.EnumerateArray())
         {
             if (sense.ValueKind != JsonValueKind.Object)
                 continue;
 
-            var pos = new List<string>();
-            if (sense.TryGetProperty("partOfSpeech", out var posList) && posList.ValueKind == JsonValueKind.Array)
+            if (!sense.TryGetProperty("gloss", out var glossList) || glossList.ValueKind != JsonValueKind.Array)
+                continue;
+
+            foreach (var g in glossList.EnumerateArray())
             {
-                foreach (var p in posList.EnumerateArray())
+                if (g.ValueKind == JsonValueKind.String)
                 {
-                    if (p.ValueKind == JsonValueKind.String)
-                    {
-                        var s = p.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            pos.Add(s);
-                    }
+                    var s = g.GetString();
+                    if (!string.IsNullOrWhiteSpace(s))
+                        return s;
+                    continue;
+                }
+
+                if (g.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                var lang = g.TryGetProperty("lang", out var langEl) && langEl.ValueKind == JsonValueKind.String
+                    ? langEl.GetString()
+                    : null;
+
+                if (!string.IsNullOrWhiteSpace(lang) && !string.Equals(lang, "eng", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (g.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
+                {
+                    var s = textEl.GetString();
+                    if (!string.IsNullOrWhiteSpace(s))
+                        return s;
                 }
             }
-
-            var glosses = new List<string>();
-            if (sense.TryGetProperty("gloss", out var glossList) && glossList.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var g in glossList.EnumerateArray())
-                {
-                    if (g.ValueKind == JsonValueKind.String)
-                    {
-                        var s = g.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            glosses.Add(s);
-                        continue;
-                    }
-
-                    if (g.ValueKind != JsonValueKind.Object)
-                        continue;
-
-                    var lang = g.TryGetProperty("lang", out var langEl) && langEl.ValueKind == JsonValueKind.String
-                        ? langEl.GetString()
-                        : null;
-
-                    if (!string.IsNullOrWhiteSpace(lang) && !string.Equals(lang, "eng", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    if (g.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
-                    {
-                        var s = textEl.GetString();
-                        if (!string.IsNullOrWhiteSpace(s))
-                            glosses.Add(s);
-                    }
-                }
-            }
-
-            senses.Add(new SenseDto(pos, glosses));
         }
 
-        return senses;
+        return string.Empty;
     }
 }

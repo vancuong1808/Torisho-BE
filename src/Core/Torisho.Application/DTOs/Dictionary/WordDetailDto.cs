@@ -8,6 +8,5 @@ public sealed record WordDetailDto{
     
     // todo: List User's comment
     public List<ExampleDto> Examples { get; init; } = new();
-
-    
+    public List<SenseDto> Senses { get; init; } = new();
 }

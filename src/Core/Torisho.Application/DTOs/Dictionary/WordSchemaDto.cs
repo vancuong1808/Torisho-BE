@@ -5,7 +5,8 @@ public sealed record WordSchemaDto(
     string? Kanji,
     string Kana,
     bool IsCommon,
-    IReadOnlyList<SenseDto> Senses);
+    string PrimaryMeaning
+);
 
 public sealed record SenseDto(
     IReadOnlyList<string> PartsOfSpeech,
