@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Torisho.Application.Services.Dictionary;
+using Torisho.Application.Interfaces.Dictionary;
 
 namespace Torisho.API.Controllers;
 

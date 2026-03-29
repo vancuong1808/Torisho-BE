@@ -2,7 +2,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Application.DTOs.Dictionary;
-using Torisho.Application.Services.Dictionary;
+using Torisho.Application.Interfaces.Dictionary;
 
 namespace Torisho.Infrastructure.Services.Dictionary;
 

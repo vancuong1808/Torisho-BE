@@ -1,5 +1,5 @@
 using Torisho.Application.DTOs.Auth;
-using Torisho.Application.Services.Auth;
+using Torisho.Application.Interfaces.Auth;
 using Torisho.Domain.Entities.UserDomain;
 using Torisho.Domain.Interfaces.Repositories;
 

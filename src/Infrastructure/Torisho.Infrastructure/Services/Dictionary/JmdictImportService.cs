@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
-using Torisho.Application.Services.Dictionary;
+using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Domain.Entities.DictionaryDomain;
 using Torisho.Domain.Enums;
 

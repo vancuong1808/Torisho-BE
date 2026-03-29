@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Torisho.Domain.Entities.UserDomain;
 
-namespace Torisho.Application.Services.Auth;
+namespace Torisho.Application.Interfaces.Auth;
 
 public interface IJwtTokenService
 {

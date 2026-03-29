@@ -1,6 +1,6 @@
 using Torisho.Application.DTOs.Dictionary;
 
-namespace Torisho.Application.Services.Dictionary;
+namespace Torisho.Application.Interfaces.Dictionary;
 
 public interface IDictionarySearchService
 {

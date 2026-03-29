@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Torisho.Application;
-using Torisho.Application.Services.Auth;
-using Torisho.Application.Services.Dictionary;
+using Torisho.Application.Interfaces.Auth;
+using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Domain.Interfaces.Repositories;
 using Torisho.Infrastructure;
 using Torisho.Infrastructure.Repositories;
@@ -48,6 +48,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
+// builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");

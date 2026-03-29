@@ -1,4 +1,4 @@
-namespace Torisho.Application.Services.Dictionary;
+namespace Torisho.Application.Interfaces.Dictionary;
 
 public interface IJmdictImportService
 {
