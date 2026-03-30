@@ -33,6 +33,12 @@ public sealed class RoomParticipant : BaseEntity
         LeftAt = DateTime.UtcNow;
     }
 
+    public void Rejoin()
+    {
+        LeftAt = null;
+        JoinedAt = DateTime.UtcNow;
+    }
+
     public bool IsActive()
     {
         return !LeftAt.HasValue;

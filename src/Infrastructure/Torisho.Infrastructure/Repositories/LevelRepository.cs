@@ -25,7 +25,7 @@ public class LevelRepository : GenericRepository<Level>, ILevelRepository
             throw new ArgumentException("LevelId cannot be empty", nameof(levelId));
 
         return await _dbSet
-            .Include(l => l.Chapters.OrderBy(c => c.Order)) // Load Chapters và sort
+            .Include(l => l.Chapters.OrderBy(c => c.Order)) // Load Chapters and sort
             .FirstOrDefaultAsync(l => l.Id == levelId, ct);
     }
 

@@ -4,10 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Torisho.Application;
 using Torisho.Application.Services.Auth;
+using Torisho.Application.Services.Room;
 using Torisho.Domain.Interfaces.Repositories;
 using Torisho.Infrastructure;
 using Torisho.Infrastructure.Repositories;
 using Torisho.Infrastructure.Services.Auth;
+using Torisho.Infrastructure.Services.Room;
+using Torisho.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +47,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
@@ -66,10 +70,40 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ClockSkew = TimeSpan.Zero
     };
+
+    // SignalR authentication via query string token
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
+// SignalR for real-time room communication
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
@@ -95,5 +129,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<RoomHub>("/hubs/room");
 
 app.Run();

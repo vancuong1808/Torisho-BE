@@ -31,8 +31,8 @@ public class ChapterProgressRepository : GenericRepository<ChapterProgress>, ICh
         if (levelId == Guid.Empty)
             throw new ArgumentException("LevelId cannot be empty", nameof(levelId));
 
-        // All chapters progress trong một level
-        // Include Chapter để get chapter info
+        // Get all chapters progress within a level
+        // Include Chapter to get chapter info
         return await _dbSet
             .AsNoTracking()
             .Include(cp => cp.Chapter)

@@ -43,11 +43,13 @@ public class GenericRepository<T> : IRepository<T> where T : class, IAggregateRo
 
     public Task UpdateAsync(T entity, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _dbSet.Update(entity);
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(T entity, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _dbSet.Remove(entity);
+        return Task.CompletedTask;
     }
 }
