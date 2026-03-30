@@ -1,6 +1,6 @@
 using Torisho.Application.DTOs.Auth;
 
-namespace Torisho.Application.Services.Auth;
+namespace Torisho.Application.Interfaces.Auth;
 
 public interface IAuthService
 {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260308071649_Dictionary_form_text_binary_collation")]
+    partial class Dictionary_form_text_binary_collation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -906,11 +909,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("MaxParticipants")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(2);
-
                     b.Property<string>("RoomType")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -926,10 +924,6 @@ namespace Torisho.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<string>("TargetLevel")
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("Transcript")
                         .HasColumnType("text");
@@ -950,9 +944,6 @@ namespace Torisho.Infrastructure.Migrations
 
                     b.HasIndex("Status", "ScheduledAt")
                         .HasDatabaseName("IX_Rooms_Status_ScheduledAt");
-
-                    b.HasIndex("Status", "TargetLevel", "RoomType")
-                        .HasDatabaseName("IX_Rooms_Matching");
 
                     b.ToTable("Rooms", (string)null);
                 });

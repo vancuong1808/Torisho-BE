@@ -1,5 +1,5 @@
 using BCrypt.Net;
-using Torisho.Application.Services.Auth;
+using Torisho.Application.Interfaces.Auth;
 
 namespace Torisho.Infrastructure.Services.Auth;
 

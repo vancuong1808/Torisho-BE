@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Torisho.Application.DTOs.Auth;
-using Torisho.Application.Services.Auth;
+using Torisho.Application.Interfaces.Auth;
 
 namespace Torisho.API.Controllers;
 

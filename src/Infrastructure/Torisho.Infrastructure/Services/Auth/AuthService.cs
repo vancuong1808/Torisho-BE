@@ -1,5 +1,5 @@
 using Torisho.Application.DTOs.Auth;
-using Torisho.Application.Services.Auth;
+using Torisho.Application.Interfaces.Auth;
 using Torisho.Domain.Entities.UserDomain;
 using Torisho.Domain.Interfaces.Repositories;
 
@@ -132,10 +132,10 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<bool> ValidateTokenAsync(string token, CancellationToken ct = default)
+    public Task<bool> ValidateTokenAsync(string token, CancellationToken ct = default)
     {
         var principal = _jwtTokenService.ValidateToken(token);
-        return principal != null;
+        return Task.FromResult(principal != null);
     }
 
     public async Task LogoutAsync(Guid userId, CancellationToken ct = default)

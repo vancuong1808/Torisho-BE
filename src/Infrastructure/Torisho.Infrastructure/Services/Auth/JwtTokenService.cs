@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Torisho.Application.Services.Auth;
+using Torisho.Application.Interfaces.Auth;
 using Torisho.Domain.Entities.UserDomain;
 
 namespace Torisho.Infrastructure.Services.Auth;
