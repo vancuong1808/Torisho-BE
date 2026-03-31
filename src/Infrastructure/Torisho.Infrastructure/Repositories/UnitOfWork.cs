@@ -21,6 +21,7 @@ public class UnitOfWork : IUnitOfWork
     private IChapterProgressRepository? _chapterProgress;
     private IDailyActivitiesRepository? _dailyActivities;
     private IRefreshTokenRepository? _refreshTokens;
+    private IDictionaryCommentRepository? _dictionaryComments;
 
     public UnitOfWork(IDataContext context)
     {
@@ -69,7 +70,8 @@ public class UnitOfWork : IUnitOfWork
 
     public IVideoLessonCommentRepository VideoLessonComments => throw new NotImplementedException();
 
-    public IDictionaryCommentRepository DictionaryComments => throw new NotImplementedException();
+    public IDictionaryCommentRepository DictionaryComments =>
+        _dictionaryComments ??= new DictionaryCommentRepository(_context);
 
     // Transaction commit point
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
