@@ -9,13 +9,14 @@ public abstract class Comment : BaseEntity, IAggregateRoot
     public bool IsEdited { get; private set; }
     public bool IsDeleted { get; private set; }
     public Guid? ParentCommentId { get; private set; }
-    public Comment? ParentComment { get; private set; }
-    public ICollection<Comment> Replies { get; private set; } = new List<Comment>();
 
     protected Comment() { }
 
     protected Comment(Guid userId, string content, Guid? parentCommentId = null)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User id is required", nameof(userId));
+
         if (string.IsNullOrWhiteSpace(content))
             throw new ArgumentException("Comment content is required", nameof(content));
 
