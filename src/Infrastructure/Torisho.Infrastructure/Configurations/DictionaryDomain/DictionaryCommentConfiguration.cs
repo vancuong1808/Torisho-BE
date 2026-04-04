@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Torisho.Domain.Entities.CommentDomain;
+using Torisho.Domain.Entities.UserDomain;
 
 namespace Torisho.Infrastructure.Configurations.DictionaryDomain;
 
@@ -53,6 +54,11 @@ public sealed class DictionaryCommentConfiguration : IEntityTypeConfiguration<Di
         builder.HasOne(c => c.DictionaryEntry)
             .WithMany(e => e.Comments)
             .HasForeignKey(c => c.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(c => c.ParentComment)
