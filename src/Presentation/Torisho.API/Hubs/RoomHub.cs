@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Torisho.Application.Services.Room;
+using Torisho.Application.Interfaces.Room;
 using Torisho.Application.DTOs.Room;
 
 namespace Torisho.API.Hubs;

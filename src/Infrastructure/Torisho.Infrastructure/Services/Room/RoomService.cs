@@ -1,7 +1,7 @@
 using Torisho.Application;
 using Torisho.Application.DTOs.Room;
 using Torisho.Application.Mappers;
-using Torisho.Application.Services.Room;
+using Torisho.Application.Interfaces.Room;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Domain.Entities.RoomDomain;
 using Torisho.Domain.Enums;

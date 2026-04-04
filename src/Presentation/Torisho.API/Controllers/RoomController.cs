@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using Torisho.Application.DTOs.Room;
-using Torisho.Application.Services.Room;
+using Torisho.Application.Interfaces.Room;
 using Torisho.API.Hubs;
 
 namespace Torisho.API.Controllers;

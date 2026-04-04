@@ -1,7 +1,7 @@
 using Torisho.Application.DTOs.Room;
 using Torisho.Domain.Enums;
 
-namespace Torisho.Application.Services.Room;
+namespace Torisho.Application.Interfaces.Room;
 
 public interface IRoomService
 {
