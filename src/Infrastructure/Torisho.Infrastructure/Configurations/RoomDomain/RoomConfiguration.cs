@@ -44,9 +44,24 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
             .HasForeignKey(rp => rp.RoomId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure EF Core to use backing field for change tracking
+        builder.Navigation(r => r.Participants)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(r => r.Messages)
             .WithOne()
             .HasForeignKey("RoomId")
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(r => r.TargetLevel)
+            .HasConversion<string?>()
+            .HasMaxLength(10);
+
+        builder.Property(r => r.MaxParticipants)
+            .IsRequired()
+            .HasDefaultValue(2);
+
+        builder.HasIndex(r => new { r.Status, r.TargetLevel, r.RoomType })
+            .HasDatabaseName("IX_Rooms_Matching");
     }
 }

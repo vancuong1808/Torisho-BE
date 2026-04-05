@@ -60,7 +60,7 @@ public sealed class QuizAttempt : BaseEntity, IAggregateRoot
     {
         ArgumentNullException.ThrowIfNull(answer);
         
-        // Business rule: không answer 2 lần cùng question
+        // Business rule: cannot answer the same question twice
         if (_answers.Any(a => a.QuestionId == answer.QuestionId))
             throw new InvalidOperationException("Question already answered");
             

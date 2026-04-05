@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260306133330_AddTargetLevelToRoom")]
+    partial class AddTargetLevelToRoom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,218 +72,89 @@ namespace Torisho.Infrastructure.Migrations
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("ExamplesJson")
-                        .HasColumnType("json")
-                        .HasColumnName("examples_json");
-
-                    b.Property<bool>("IsCommon")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_common");
+                        .HasColumnType("json");
 
                     b.Property<string>("Jlpt")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("jlpt");
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("Keyword")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("primary_headword");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("MeaningsJson")
-                        .HasColumnType("json")
-                        .HasColumnName("meanings_json");
-
-                    b.Property<string>("RawJson")
-                        .HasColumnType("json")
-                        .HasColumnName("raw_json");
+                        .HasColumnType("json");
 
                     b.Property<string>("Reading")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("primary_reading");
-
-                    b.Property<string>("SourceId")
-                        .HasMaxLength(32)
-                        .HasColumnType("varchar(32)")
-                        .HasColumnName("source_id");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsCommon")
-                        .HasDatabaseName("idx_entries_is_common");
-
                     b.HasIndex("Jlpt")
-                        .HasDatabaseName("idx_jlpt");
+                        .HasDatabaseName("IX_DictionaryEntries_Jlpt");
 
                     b.HasIndex("Keyword")
-                        .HasDatabaseName("idx_primary_headword");
+                        .HasDatabaseName("IX_DictionaryEntries_Keyword");
 
                     b.HasIndex("Reading")
-                        .HasDatabaseName("idx_primary_reading");
-
-                    b.HasIndex("SourceId")
-                        .IsUnique()
-                        .HasDatabaseName("ux_entries_source_id");
+                        .HasDatabaseName("IX_DictionaryEntries_Reading");
 
                     b.HasIndex("Jlpt", "Keyword")
-                        .HasDatabaseName("idx_jlpt_primary_headword");
+                        .HasDatabaseName("IX_DictionaryEntries_Jlpt_Keyword");
 
-                    b.ToTable("entries", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryDefinition", b =>
-                {
-                    b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("entry_id");
-
-                    b.Property<string>("GlossText")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("gloss_text");
-
-                    b.HasKey("DictionaryEntryId");
-
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("ix_entry_definitions_entry_id");
-
-                    b.ToTable("entry_definitions", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanjiForm", b =>
-                {
-                    b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("entry_id");
-
-                    b.Property<string>("KanjiText")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("kanji_text")
-                        .UseCollation("utf8mb4_bin");
-
-                    b.Property<bool>("IsCommon")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_common");
-
-                    b.HasKey("DictionaryEntryId", "KanjiText");
-
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("idx_entry_kanji_entry");
-
-                    b.HasIndex("IsCommon")
-                        .HasDatabaseName("idx_entry_kanji_common");
-
-                    b.HasIndex("KanjiText")
-                        .HasDatabaseName("idx_kanji");
-
-                    b.ToTable("entry_kanji", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryReadingForm", b =>
-                {
-                    b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("entry_id");
-
-                    b.Property<string>("ReadingText")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("reading_text")
-                        .UseCollation("utf8mb4_bin");
-
-                    b.HasKey("DictionaryEntryId", "ReadingText");
-
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("idx_entry_reading_entry");
-
-                    b.HasIndex("ReadingText")
-                        .HasDatabaseName("idx_reading");
-
-                    b.ToTable("entry_reading", (string)null);
+                    b.ToTable("DictionaryEntries", (string)null);
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.FlashCard", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Back")
                         .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("varchar(2048)")
-                        .HasColumnName("back");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
+                        .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("entry_id");
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("Front")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)")
-                        .HasColumnName("front");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsFavorite")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_favorite");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
+                        .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("user_id");
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("idx_flashcards_entry_id");
+                    b.HasIndex("DictionaryEntryId");
 
-                    b.HasIndex("IsFavorite")
-                        .HasDatabaseName("idx_flashcards_is_favorite");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("idx_flashcards_user_id");
-
-                    b.ToTable("flashcards", (string)null);
+                    b.ToTable("FlashCard");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.LearningDomain.Chapter", b =>
@@ -1446,33 +1320,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.Navigation("Level");
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryDefinition", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", null)
-                        .WithOne("Definition")
-                        .HasForeignKey("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryDefinition", "DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanjiForm", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", null)
-                        .WithMany("KanjiForms")
-                        .HasForeignKey("DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryReadingForm", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", null)
-                        .WithMany("ReadingForms")
-                        .HasForeignKey("DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.FlashCard", b =>
                 {
                     b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
@@ -1807,15 +1654,9 @@ namespace Torisho.Infrastructure.Migrations
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", b =>
                 {
-                    b.Navigation("Definition");
-
                     b.Navigation("FlashCards");
 
-                    b.Navigation("KanjiForms");
-
                     b.Navigation("Kanjis");
-
-                    b.Navigation("ReadingForms");
 
                     b.Navigation("Vocabularies");
                 });

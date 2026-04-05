@@ -7,7 +7,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly IDataContext _context;
 
-    // Lazy initialization của repositories
+    // Lazy initialization of repositories
     private IUserRepository? _users;
     private IDictionaryEntryRepository? _dictionaryEntries;
     private ILevelRepository? _levels;
@@ -27,7 +27,7 @@ public class UnitOfWork : IUnitOfWork
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    // Properties với lazy initialization
+    // Properties with lazy initialization
     public IUserRepository Users => 
         _users ??= new UserRepository(_context);
 

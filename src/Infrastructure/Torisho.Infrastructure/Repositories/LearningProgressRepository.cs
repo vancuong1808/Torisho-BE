@@ -18,7 +18,7 @@ public class LearningProgressRepository : GenericRepository<LearningProgress>, I
         if (levelId == Guid.Empty)
             throw new ArgumentException("LevelId cannot be empty", nameof(levelId));
 
-        // Find progress của user cho specific level
+        // Find user's progress for a specific level
         return await _dbSet
             .FirstOrDefaultAsync(lp => 
                 lp.UserId == userId && 
@@ -30,7 +30,7 @@ public class LearningProgressRepository : GenericRepository<LearningProgress>, I
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId cannot be empty", nameof(userId));
 
-        // All progress của user across levels
+        // Get all progress of user across levels
         return await _dbSet
             .AsNoTracking()
             .Include(lp => lp.Level)
