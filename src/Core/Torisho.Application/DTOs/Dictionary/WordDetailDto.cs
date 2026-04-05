@@ -5,8 +5,8 @@ public sealed record WordDetailDto{
     public string? Kanji { get; init; }
     public string Kana { get; init; } = string.Empty;
     public bool IsCommon { get; init; }
-    
-    // todo: List User's comment
+
+    public List<DictionaryCommentDto> Comments { get; init; } = new();
     public List<ExampleDto> Examples { get; init; } = new();
     public List<SenseDto> Senses { get; init; } = new();
 }
