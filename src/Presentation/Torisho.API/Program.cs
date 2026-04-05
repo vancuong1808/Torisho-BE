@@ -56,6 +56,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
+builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
 

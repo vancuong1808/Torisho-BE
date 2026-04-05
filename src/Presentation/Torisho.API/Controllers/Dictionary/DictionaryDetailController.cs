@@ -1,4 +1,7 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Torisho.Application.DTOs.Dictionary;
 using Torisho.Application.Interfaces.Dictionary;
 
 namespace Torisho.API.Controllers;
@@ -8,10 +11,14 @@ namespace Torisho.API.Controllers;
 public sealed class DictionaryDetailController : ControllerBase
 {
     private readonly IDictionaryDetailService _detailService;
+    private readonly IDictionaryCommentService _commentService;
 
-    public DictionaryDetailController(IDictionaryDetailService detailService)
+    public DictionaryDetailController(
+        IDictionaryDetailService detailService,
+        IDictionaryCommentService commentService)
     {
         _detailService = detailService;
+        _commentService = commentService;
     }
 
     [HttpGet("{id:guid}")]
@@ -22,5 +29,31 @@ public sealed class DictionaryDetailController : ControllerBase
             return NotFound();
 
         return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("{id:guid}/comments")]
+    public async Task<IActionResult> CreateComment(Guid id, [FromBody] CreateDictionaryCommentRequest request, CancellationToken ct)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.Content))
+            return BadRequest(new { message = "Comment content is required" });
+
+        var userClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userClaim, out var userId))
+            return Unauthorized();
+
+        try
+        {
+            var created = await _commentService.CreateAsync(id, userId, request, ct);
+            return Ok(created);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
