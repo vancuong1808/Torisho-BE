@@ -29,12 +29,6 @@ public interface IDictionaryCommentRepository : IRepository<DictionaryComment>
         Guid parentCommentId,
         CancellationToken ct = default);
 
-    // Get most liked comments
-    Task<IEnumerable<DictionaryComment>> GetTopLikedCommentsAsync(
-        Guid dictionaryEntryId,
-        int count = 10,
-        CancellationToken ct = default);
-
     // Get comment count for a dictionary entry
     Task<int> GetCommentCountAsync(Guid dictionaryEntryId, CancellationToken ct = default);
 }

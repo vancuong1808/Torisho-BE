@@ -24,10 +24,6 @@ public sealed class DictionaryCommentConfiguration : IEntityTypeConfiguration<Di
         builder.Property(c => c.DictionaryEntryId)
             .IsRequired();
 
-        builder.Property(c => c.LikeCount)
-            .IsRequired()
-            .HasDefaultValue(0);
-
         builder.Property(c => c.IsEdited)
             .IsRequired();
 

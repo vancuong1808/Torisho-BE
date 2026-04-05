@@ -56,20 +56,6 @@ public sealed class DictionaryCommentRepository : GenericRepository<DictionaryCo
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<DictionaryComment>> GetTopLikedCommentsAsync(
-        Guid dictionaryEntryId,
-        int count = 10,
-        CancellationToken ct = default)
-    {
-        return await _dbSet
-            .AsNoTracking()
-            .Where(c => c.DictionaryEntryId == dictionaryEntryId)
-            .OrderByDescending(c => c.LikeCount)
-            .ThenByDescending(c => c.CreatedAt)
-            .Take(count)
-            .ToListAsync(ct);
-    }
-
     public async Task<int> GetCommentCountAsync(Guid dictionaryEntryId, CancellationToken ct = default)
     {
         return await _dbSet
