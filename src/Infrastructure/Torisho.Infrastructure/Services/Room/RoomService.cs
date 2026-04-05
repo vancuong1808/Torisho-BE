@@ -11,6 +11,7 @@ namespace Torisho.Infrastructure.Services.Room;
 
 public class RoomService : IRoomService
 {
+    // Waiting rooms older than this are considered stale.
     private const int WaitingRoomExpiryMinutes = 30;
 
     private readonly IUnitOfWork _unitOfWork;
@@ -24,6 +25,7 @@ public class RoomService : IRoomService
 
     public async Task<RoomMatchResponse> FindOrCreateRoomAsync(Guid userId, JLPTLevel targetLevel, CancellationToken ct = default)
     {
+        // Step 1: remove stale waiting rooms for this level.
         await CleanupExpiredWaitingRoomsAsync(targetLevel, ct);
 
         // Check if user is already in an active room
@@ -43,12 +45,12 @@ public class RoomService : IRoomService
             }
         }
 
-        // Find a waiting room with the same level
+        // Step 2: try to join an existing waiting room with the same level.
         var waitingRoom = await _unitOfWork.Rooms.FindWaitingRoomByLevelAsync(targetLevel, ct);
 
         if (waitingRoom != null && waitingRoom.CanJoin(userId))
         {
-            // Check if user has an old inactive participant record in this room
+            // Reuse an old participant record when possible to avoid duplicates.
             var existingParticipant = waitingRoom.Participants.FirstOrDefault(p => p.UserId == userId);
             
             if (existingParticipant != null)
@@ -80,7 +82,7 @@ public class RoomService : IRoomService
         }
         else
         {
-            // Create new room
+            // Step 3: no suitable waiting room, create a new room.
             var newRoom = new Domain.Entities.RoomDomain.Room(
                 RoomType.UserToUser,
                 DateTime.UtcNow,
@@ -105,6 +107,7 @@ public class RoomService : IRoomService
 
     private async Task CleanupExpiredWaitingRoomsAsync(JLPTLevel targetLevel, CancellationToken ct)
     {
+        // Close old waiting rooms so users are not matched into stale sessions.
         var cutoff = DateTime.UtcNow.AddMinutes(-WaitingRoomExpiryMinutes);
 
         var expiredRooms = await _context.Set<Torisho.Domain.Entities.RoomDomain.Room>()
@@ -171,7 +174,7 @@ public class RoomService : IRoomService
 
         participant.Leave();
 
-        // Handle room status based on remaining active participants
+        // Keep room lifecycle consistent with remaining active participants.
         var activeParticipants = room.Participants.Where(p => !p.LeftAt.HasValue).ToList();
         
         if (!activeParticipants.Any())

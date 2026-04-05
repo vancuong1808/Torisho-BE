@@ -8,6 +8,7 @@ namespace Torisho.Infrastructure.Repositories;
 
 public class RoomRepository : GenericRepository<Room>, IRoomRepository
 {
+    // Freshness window for matchmaking waiting rooms.
     private const int WaitingRoomMatchWindowMinutes = 30;
 
     public RoomRepository(IDataContext context) : base(context)
@@ -19,6 +20,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
         if (roomId == Guid.Empty)
             throw new ArgumentException("RoomId cannot be empty", nameof(roomId));
 
+        // Read full room graph used by signaling and participant management.
         return await _dbSet
             .Include(r => r.Participants)
                 .ThenInclude(p => p.User) // Load User in4
@@ -29,6 +31,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
     {
         var cutoff = DateTime.UtcNow.AddMinutes(-WaitingRoomMatchWindowMinutes);
 
+        // FIFO matchmaking among waiting rooms that still have active slots.
         return await _dbSet
             .Include(r => r.Participants)
                 .ThenInclude(p => p.User)
@@ -62,6 +65,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId cannot be empty", nameof(userId));
 
+        // Return the newest waiting/active room where this user still has an active participant.
         return await _dbSet
             .Include(r => r.Participants)
                 .ThenInclude(p => p.User)
