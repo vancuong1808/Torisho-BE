@@ -1,4 +1,5 @@
 using Torisho.Domain.Common;
+using Torisho.Domain.Entities.CommentDomain;
 using Torisho.Domain.Entities.ContentDomain;
 using Torisho.Domain.Enums;
 using Torisho.Domain.Interfaces;
@@ -30,6 +31,7 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
     public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
     public ICollection<Vocabulary> Vocabularies { get; private set; } = new List<Vocabulary>();
     public ICollection<Kanji> Kanjis { get; private set; } = new List<Kanji>();
+    public ICollection<DictionaryComment> Comments { get; private set; } = new List<DictionaryComment>();
 
     private DictionaryEntry() { }
 

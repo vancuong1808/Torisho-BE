@@ -7,6 +7,8 @@ public sealed class VideoLessonComment : Comment
     public int? TimestampSeconds { get; private set; }
     public Guid VideoLessonId { get; private set; }
     public VideoLesson? VideoLesson { get; private set; }
+    public VideoLessonComment? ParentComment { get; private set; }
+    public ICollection<VideoLessonComment> Replies { get; private set; } = new List<VideoLessonComment>();
 
     private VideoLessonComment() { }
 
@@ -18,6 +20,9 @@ public sealed class VideoLessonComment : Comment
         Guid? parentCommentId = null)
         : base(userId, content, parentCommentId)
     {
+        if (videoLessonId == Guid.Empty)
+            throw new ArgumentException("Video lesson id is required", nameof(videoLessonId));
+
         VideoLessonId = videoLessonId;
         
         if (timestampSeconds.HasValue && timestampSeconds.Value < 0)

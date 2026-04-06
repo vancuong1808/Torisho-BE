@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Torisho.Application;
 using Torisho.Application.Interfaces.Auth;
-using Torisho.Application.Services.Room;
+using Torisho.Application.Interfaces.Room;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Application.Services.Dictionary;
 using Torisho.Domain.Interfaces;
@@ -56,6 +56,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
+builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
 

@@ -14,15 +14,20 @@ public class DictionaryDetailService : IDictionaryDetailService
     private readonly IDictionaryEntryRepository _repo;
     private readonly ITatoeba _tatoeba;
     private readonly IDataContext _context;
+    private readonly IDictionaryCommentService _commentService;
+
     public DictionaryDetailService(
         IDictionaryEntryRepository repo,
         ITatoeba tatoeba,
-        IDataContext context)
+        IDataContext context,
+        IDictionaryCommentService commentService)
     {
         _repo = repo;
         _tatoeba = tatoeba;
         _context = context;
+        _commentService = commentService;
     }
+
     public async Task<WordDetailDto?> GetWordDetailAsync(Guid id, CancellationToken ct = default)
     {
         var entry = await _repo.GetByIdAsync(id, ct);
@@ -34,6 +39,7 @@ public class DictionaryDetailService : IDictionaryDetailService
         var resolvedKana = kana ?? entry.Reading;
 
         var examples = await GetExamplesAsync(entry, ct);
+        var comments = await _commentService.GetByDictionaryEntryAsync(entry.Id, ct);
 
         return new WordDetailDto
         {
@@ -41,6 +47,7 @@ public class DictionaryDetailService : IDictionaryDetailService
             Kanji = resolvedKanji,
             Kana = resolvedKana,
             IsCommon = entry.IsCommon,
+            Comments = comments.ToList(),
             Examples = examples,
             Senses = senses
         };
