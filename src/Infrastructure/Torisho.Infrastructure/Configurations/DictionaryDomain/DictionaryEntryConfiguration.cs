@@ -91,6 +91,11 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
             .HasForeignKey(k => k.DictionaryEntryId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(de => de.KanjiLinks)
+            .WithOne(k => k.DictionaryEntry)
+            .HasForeignKey(k => k.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasMany(de => de.ReadingForms)
             .WithOne()
             .HasForeignKey(r => r.DictionaryEntryId)
