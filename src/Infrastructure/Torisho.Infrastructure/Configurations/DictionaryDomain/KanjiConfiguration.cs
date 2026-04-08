@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Torisho.Domain.Entities.ContentDomain;
+using Torisho.Domain.Entities.DictionaryDomain;
 
-namespace Torisho.Infrastructure.Configurations.ContentDomain;
+namespace Torisho.Infrastructure.Configurations.DictionaryDomain;
 
 public sealed class KanjiConfiguration : IEntityTypeConfiguration<Kanji>
 {

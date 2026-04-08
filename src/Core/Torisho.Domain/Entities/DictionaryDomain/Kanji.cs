@@ -1,12 +1,10 @@
+using System.Text;
 using System.Text.Json;
 using Torisho.Domain.Common;
-using Torisho.Domain.Entities.DictionaryDomain;
-using Torisho.Domain.Entities.QuizDomain;
-using Torisho.Domain.Enums;
 
-namespace Torisho.Domain.Entities.ContentDomain;
+namespace Torisho.Domain.Entities.DictionaryDomain;
 
-public sealed class Kanji : LearningContent, IAggregateRoot
+public sealed class Kanji : BaseEntity, IAggregateRoot
 {
     public string Character { get; private set; } = string.Empty;
     public string Onyomi { get; private set; } = string.Empty;
@@ -24,8 +22,6 @@ public sealed class Kanji : LearningContent, IAggregateRoot
     private Kanji() { }
 
     public Kanji(
-        string title,
-        Guid levelId,
         string character,
         string onyomi,
         string kunyomi,
@@ -36,11 +32,12 @@ public sealed class Kanji : LearningContent, IAggregateRoot
         int strokeCount,
         int? frequency,
         string? unicodeHex)
-        : base(title, levelId)
     {
+        var normalizedCharacter = character.Trim();
+
         if (string.IsNullOrWhiteSpace(character))
             throw new ArgumentException("Character is required", nameof(character));
-        if (character.Trim().Length != 1)
+        if (!IsSingleUnicodeScalar(normalizedCharacter))
             throw new ArgumentException("Character must contain exactly one kanji.", nameof(character));
         if (strokeCount < 0)
             throw new ArgumentException("StrokeCount cannot be negative", nameof(strokeCount));
@@ -55,7 +52,7 @@ public sealed class Kanji : LearningContent, IAggregateRoot
         if (normalizedType is not ("" or "jouyou" or "jinmeiyou"))
             throw new ArgumentException("Type must be one of: '', 'jouyou', 'jinmeiyou'", nameof(type));
 
-        Character = character.Trim();
+        Character = normalizedCharacter;
         Onyomi = onyomi.Trim();
         Kunyomi = kunyomi.Trim();
         Type = normalizedType;
@@ -122,11 +119,12 @@ public sealed class Kanji : LearningContent, IAggregateRoot
         return meaningsJson;
     }
 
-    public override void Display()
+    private static bool IsSingleUnicodeScalar(string value)
     {
-        throw new NotImplementedException();
-    }
+        var enumerator = value.EnumerateRunes().GetEnumerator();
+        if (!enumerator.MoveNext())
+            return false;
 
-    public override Quiz CreateQuiz()
-        => new(QuizType.Kanji, Id);
+        return !enumerator.MoveNext();
+    }
 }

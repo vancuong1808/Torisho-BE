@@ -1,5 +1,3 @@
-using Torisho.Domain.Entities.ContentDomain;
-
 namespace Torisho.Domain.Entities.DictionaryDomain;
 
 public sealed class DictionaryEntryKanji
