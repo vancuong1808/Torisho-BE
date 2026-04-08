@@ -58,6 +58,8 @@ builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
+builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();
+builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
