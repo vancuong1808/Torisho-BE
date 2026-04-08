@@ -7,7 +7,7 @@ using Torisho.Infrastructure.Services.Dictionary;
 var appSettingsPath = "src/Presentation/Torisho.API/appsettings.Development.json";
 
 var kanjidicDir = @"D:\PBL5\Torisho-BE\data\KANJIDIC_english"; 
-var jmdictFile = @"D:\PBL5\Torisho-BE\data\JMdict_e.json";     
+var jmdictFile = @"D:\PBL5\Torisho-BE\data\jmdict-eng-common-3.6.1.json";     
 var rebuildEntryLinks = true;
 
 // get command from args, default "kanjidic" if not provided
