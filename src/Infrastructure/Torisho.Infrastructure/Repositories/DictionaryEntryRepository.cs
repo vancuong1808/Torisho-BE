@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 using Torisho.Application;
 using Torisho.Domain.Entities.DictionaryDomain;
 using Torisho.Domain.Enums;
@@ -13,23 +12,20 @@ public class DictionaryEntryRepository : GenericRepository<DictionaryEntry>, IDi
     {
     }
 
-    public async Task<DictionaryEntry?> GetByKeywordAsync(string keyword, CancellationToken ct = default)
+    public async Task<DictionaryEntry?> GetByIdWithRelationsAsync(Guid id, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(keyword))
-            throw new ArgumentException("Keyword cannot be empty", nameof(keyword));
+        if (id == Guid.Empty)
+            throw new ArgumentException("Id is required", nameof(id));
 
         return await _dbSet
+            .Include(e => e.KanjiForms)
+            .Include(e => e.ReadingForms)
+            .Include(e => e.Definition)
+            .Include(e => e.KanjiLinks)
             .AsNoTracking()
-            .FirstOrDefaultAsync(de => de.Keyword == keyword, ct);
+            .FirstOrDefaultAsync(e => e.Id == id, ct);
     }
 
-    public async Task<IEnumerable<DictionaryEntry>> GetByJlptLevelAsync(JLPTLevel jlptLevel, CancellationToken ct = default)
-    {
-        return await _dbSet
-            .AsNoTracking()
-            .Where(de => de.Jlpt == jlptLevel)
-            .OrderBy(de => de.Keyword)
-            .ToListAsync(ct);
-    }
+    
 
 }

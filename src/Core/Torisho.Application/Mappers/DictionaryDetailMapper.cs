@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Torisho.Application.DTOs.Dictionary;
 
-namespace Torisho.Application.Services.Dictionary;
+namespace Torisho.Application.Mappers;
 
 internal static class DictionaryDetailMapper
 {

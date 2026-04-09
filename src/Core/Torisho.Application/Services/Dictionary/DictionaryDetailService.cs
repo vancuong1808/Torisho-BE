@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Application.DTOs.Dictionary;
 using Torisho.Application.Interfaces.Dictionary;
+using Torisho.Application.Mappers;
 using Torisho.Domain.Entities.DictionaryDomain;
 using Torisho.Domain.Interfaces;
 using Torisho.Domain.Interfaces.Repositories;
@@ -30,7 +31,7 @@ public class DictionaryDetailService : IDictionaryDetailService
 
     public async Task<WordDetailDto?> GetWordDetailAsync(Guid id, CancellationToken ct = default)
     {
-        var entry = await _repo.GetByIdAsync(id, ct);
+        var entry = await _repo.GetByIdWithRelationsAsync(id, ct);
         if (entry is null)
             return null;
 
