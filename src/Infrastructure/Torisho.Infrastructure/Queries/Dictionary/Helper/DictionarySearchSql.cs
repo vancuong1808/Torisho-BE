@@ -1,4 +1,4 @@
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Queries.Dictionary;
 
 internal static class DictionarySearchSql
 {

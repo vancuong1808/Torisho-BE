@@ -7,11 +7,11 @@ namespace Torisho.API.Controllers;
 [Route("api/dictionary")]
 public sealed class DictionarySearchController : ControllerBase
 {
-    private readonly IDictionarySearchService _searchService;
+    private readonly IDictionarySearchQueries _searchQueries;
 
-    public DictionarySearchController(IDictionarySearchService searchService)
+    public DictionarySearchController(IDictionarySearchQueries searchQueries)
     {
-        _searchService = searchService;
+        _searchQueries = searchQueries;
     }
 
     [HttpGet("search")]
@@ -20,7 +20,7 @@ public sealed class DictionarySearchController : ControllerBase
         if (string.IsNullOrWhiteSpace(keyword))
             return Ok(Array.Empty<object>());
 
-        var results = await _searchService.SearchAsync(keyword, ct);
+        var results = await _searchQueries.SearchAsync(keyword, ct);
         return Ok(results);
     }
 }

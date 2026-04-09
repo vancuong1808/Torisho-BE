@@ -4,13 +4,13 @@ using Torisho.Application;
 using Torisho.Application.DTOs.Dictionary;
 using Torisho.Application.Interfaces.Dictionary;
 
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Queries.Dictionary;
 
-public sealed class DictionarySearchService : IDictionarySearchService
+public sealed class DictionarySearchQueries : IDictionarySearchQueries
 {
     private readonly IDataContext _context;
 
-    public DictionarySearchService(IDataContext context)
+    public DictionarySearchQueries(IDataContext context)
     {
         _context = context;
     }
@@ -35,18 +35,18 @@ public sealed class DictionarySearchService : IDictionarySearchService
             var connection = dbContext.Database.GetDbConnection();
 
             await using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        command.CommandType = CommandType.Text;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
 
-        AddParam(command, "@p_keyword", search.Value);
-        AddParam(command, "@p_prefix", prefix);
-        AddParam(command, "@p_like", like);
-        AddParam(command, "@p_keyword_lower", keywordLower);
-        AddParam(command, "@p_regex_literal", regexLiteral);
-        AddParam(command, "@p_is_latin", search.IsLatin ? 1 : 0);
-        AddParam(command, "@p_latin_len", search.Value.Length);
+            AddParam(command, "@p_keyword", search.Value);
+            AddParam(command, "@p_prefix", prefix);
+            AddParam(command, "@p_like", like);
+            AddParam(command, "@p_keyword_lower", keywordLower);
+            AddParam(command, "@p_regex_literal", regexLiteral);
+            AddParam(command, "@p_is_latin", search.IsLatin ? 1 : 0);
+            AddParam(command, "@p_latin_len", search.Value.Length);
 
-        var results = new List<WordSchemaDto>(capacity: 10);
+            var results = new List<WordSchemaDto>(capacity: 10);
 
             await using var reader = await command.ExecuteReaderAsync(ct);
             while (await reader.ReadAsync(ct))

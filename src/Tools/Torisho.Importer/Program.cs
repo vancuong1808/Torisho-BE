@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Infrastructure;
-using Torisho.Infrastructure.Services.Dictionary;
+using Torisho.Infrastructure.Import.Dictionary;
 
 var appSettingsPath = "src/Presentation/Torisho.API/appsettings.Development.json";
 

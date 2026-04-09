@@ -6,7 +6,7 @@ using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Domain.Entities.DictionaryDomain;
 using Torisho.Domain.Enums;
 
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Import.Dictionary;
 
 public sealed class JmdictImportService : IJmdictImportService
 {
@@ -136,8 +136,6 @@ public sealed class JmdictImportService : IJmdictImportService
 
     private static string FoldKana(string value)
     {
-        // Many MySQL collations are kana-insensitive. Fold Katakana to Hiragana for dedupe keys.
-        // Katakana range: U+30A1..U+30F6 maps to Hiragana U+3041..U+3096 by subtracting 0x60.
         var sb = new StringBuilder(value.Length);
         foreach (var ch in value)
         {
@@ -153,7 +151,6 @@ public sealed class JmdictImportService : IJmdictImportService
     {
         var rawJson = element.GetRawText();
 
-        // Prefer ent_seq (JMdict stable id) over any exporter-specific "id" field.
         var sourceId = TryGetString(element, "ent_seq") ?? TryGetString(element, "id");
 
         var kanjiForms = ExtractKanjiForms(element);
@@ -185,15 +182,12 @@ public sealed class JmdictImportService : IJmdictImportService
         var updated = 0;
         var skipped = 0;
 
-        // Ensure we don't process the same SourceId multiple times in a single batch.
-        // (If it happens, it can cause duplicate dependent inserts before SaveChanges.)
         var uniqueBySourceId = batch
             .Where(x => !string.IsNullOrWhiteSpace(x.SourceId))
             .GroupBy(x => x.SourceId!, StringComparer.Ordinal)
             .Select(g => g.Last())
             .ToList();
 
-        // Anything without SourceId is not safely idempotent; skip to avoid duplicates on re-runs.
         skipped += batch.Count - uniqueBySourceId.Count;
         batch = uniqueBySourceId;
 
@@ -205,7 +199,6 @@ public sealed class JmdictImportService : IJmdictImportService
         Dictionary<string, DictionaryEntry> existingBySourceId = new(StringComparer.Ordinal);
         if (sourceIds.Count > 0)
         {
-            // Load only entries (no Includes). We'll delete & re-insert dependents in bulk for updates.
             var existing = await _context.Set<DictionaryEntry>()
                 .Where(e => e.SourceId != null && sourceIds.Contains(e.SourceId))
                 .ToListAsync(ct);
@@ -216,7 +209,6 @@ public sealed class JmdictImportService : IJmdictImportService
                     existingBySourceId[e.SourceId!] = e;
             }
 
-            // Pre-delete dependent rows for entries that will be updated.
             var existingEntryIds = existing.Select(e => e.Id).ToList();
             if (existingEntryIds.Count > 0)
             {
@@ -239,8 +231,6 @@ public sealed class JmdictImportService : IJmdictImportService
             DictionaryEntry? entry = null;
             existingBySourceId.TryGetValue(item.SourceId!, out entry);
 
-            // Final safety: dedupe again using a key that matches typical MySQL collations
-            // (case-insensitive, width-insensitive after FormKC, and trimmed).
             var kanjiForms = item.KanjiForms
                 .Where(x => !string.IsNullOrWhiteSpace(x.Text))
                 .Select(x => (Text: NormalizeFormText(x.Text), x.IsCommon))
@@ -295,8 +285,6 @@ public sealed class JmdictImportService : IJmdictImportService
         if (_context is DbContext dbContext)
             dbContext.ChangeTracker.DetectChanges();
 
-        // Hard-stop any remaining duplicates that may still arise due to database collation rules
-        // (width/kana/diacritics/case-insensitivity). Detach duplicates so SaveChanges never fails.
         if (_context is DbContext db)
         {
             var kanjiAdds = db.ChangeTracker.Entries<DictionaryEntryKanjiForm>()
@@ -451,7 +439,6 @@ public sealed class JmdictImportService : IJmdictImportService
                         break;
 
                     case JsonValueKind.Object:
-                        // JMdict JSON often uses: {"lang":"eng", "text":"..."}
                         var lang = g.TryGetProperty("lang", out var langEl) && langEl.ValueKind == JsonValueKind.String
                             ? langEl.GetString()
                             : null;

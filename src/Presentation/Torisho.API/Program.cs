@@ -14,7 +14,8 @@ using Torisho.Infrastructure.Repositories;
 using Torisho.Infrastructure.Services.Auth;
 using Torisho.Infrastructure.Services.Room;
 using Torisho.API.Hubs;
-using Torisho.Infrastructure.Services.Dictionary;
+using Torisho.Infrastructure.Queries.Dictionary;
+using Torisho.Infrastructure.Import.Dictionary;
 using Torisho.Infrastructure.ExternalServices;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,7 +55,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
-builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
+builder.Services.AddScoped<IDictionarySearchQueries, DictionarySearchQueries>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();

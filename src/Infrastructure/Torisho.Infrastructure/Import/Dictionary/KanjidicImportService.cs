@@ -4,7 +4,7 @@ using Torisho.Application;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Domain.Entities.DictionaryDomain;
 
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Import.Dictionary;
 
 public sealed class KanjidicImportService : IKanjidicImportService
 {
@@ -163,7 +163,6 @@ public sealed class KanjidicImportService : IKanjidicImportService
             {
                 if (existing.TryGetValue(item.Character, out var kanji))
                 {
-                    // Existing kanji: refresh dictionary metadata from source.
                     kanji.UpdateMetadata(
                         onyomi: item.Onyomi,
                         kunyomi: item.Kunyomi,

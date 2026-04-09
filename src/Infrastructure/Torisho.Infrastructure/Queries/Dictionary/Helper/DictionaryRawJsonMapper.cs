@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Torisho.Application.DTOs.Dictionary;
 
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Queries.Dictionary;
 
 internal static class DictionaryRawJsonMapper
 {

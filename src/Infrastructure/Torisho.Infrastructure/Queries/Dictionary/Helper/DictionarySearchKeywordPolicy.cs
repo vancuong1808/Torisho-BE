@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Torisho.Infrastructure.Services.Dictionary;
+namespace Torisho.Infrastructure.Queries.Dictionary;
 
 internal sealed record DictionarySearchKeyword(
     string Value,
