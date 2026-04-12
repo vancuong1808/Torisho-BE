@@ -43,29 +43,11 @@ internal static class DictionaryKanjiMapper
 
             foreach (var e in entries)
             {
-                var shortGloss = string.Empty;
-                try
-                {
-                    if (e.Definition is not null)
-                        shortGloss = e.Definition.GlossText ?? string.Empty;
-                    else if (!string.IsNullOrWhiteSpace(e.MeaningsJson))
-                    {
-                        var parsed = JsonSerializer.Deserialize<List<string>>(e.MeaningsJson);
-                        if (parsed is not null && parsed.Count > 0)
-                            shortGloss = parsed[0] ?? string.Empty;
-                    }
-                }
-                catch (JsonException)
-                {
-                    // ignore
-                }
-
                 related.Add(new RelatedWordDto
                 {
                     DictionaryEntryId = e.Id,
                     Keyword = e.Keyword,
-                    Reading = e.Reading,
-                    ShortGloss = shortGloss
+                    Reading = e.Reading
                 });
             }
         }
