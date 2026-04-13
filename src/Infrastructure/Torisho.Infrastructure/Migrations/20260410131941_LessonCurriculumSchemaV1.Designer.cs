@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260410131941_LessonCurriculumSchemaV1")]
+    partial class LessonCurriculumSchemaV1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,134 +67,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.ToTable("LearningContent");
 
                     b.UseTptMappingStrategy();
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.CommentDomain.DictionaryComment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
-
-                    b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsEdited")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<Guid?>("ParentCommentId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("IX_DictionaryComments_DictionaryEntryId");
-
-                    b.HasIndex("ParentCommentId")
-                        .HasDatabaseName("IX_DictionaryComments_ParentCommentId");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_DictionaryComments_UserId");
-
-                    b.ToTable("DictionaryComments", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Character")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("varchar(1)")
-                        .UseCollation("utf8mb4_bin");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("Frequency")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Grade")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("JlptLevel")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Kunyomi")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
-
-                    b.Property<string>("MeaningsJson")
-                        .IsRequired()
-                        .HasColumnType("json");
-
-                    b.Property<string>("Onyomi")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<int>("StrokeCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("UnicodeHex")
-                        .HasMaxLength(16)
-                        .HasColumnType("varchar(16)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Character")
-                        .IsUnique()
-                        .HasDatabaseName("ux_kanji_character");
-
-                    b.HasIndex("Frequency")
-                        .HasDatabaseName("idx_kanji_freq");
-
-                    b.HasIndex("Grade")
-                        .HasDatabaseName("idx_kanji_grade");
-
-                    b.HasIndex("JlptLevel")
-                        .HasDatabaseName("idx_kanji_jlpt");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_kanji_type");
-
-                    b.HasIndex("UnicodeHex")
-                        .HasDatabaseName("idx_kanji_ucs");
-
-                    b.ToTable("Kanji", (string)null);
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", b =>
@@ -295,34 +170,6 @@ namespace Torisho.Infrastructure.Migrations
                         .HasDatabaseName("ix_entry_definitions_entry_id");
 
                     b.ToTable("entry_definitions", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanji", b =>
-                {
-                    b.Property<Guid>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("entry_id");
-
-                    b.Property<Guid>("KanjiId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("kanji_id");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int")
-                        .HasColumnName("char_position");
-
-                    b.HasKey("DictionaryEntryId", "KanjiId", "Position");
-
-                    b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("idx_entry_kanji_map_entry");
-
-                    b.HasIndex("KanjiId")
-                        .HasDatabaseName("idx_entry_kanji_map_kanji");
-
-                    b.HasIndex("KanjiId", "DictionaryEntryId")
-                        .HasDatabaseName("idx_entry_kanji_map_lookup");
-
-                    b.ToTable("entry_kanji_map", (string)null);
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanjiForm", b =>
@@ -816,9 +663,14 @@ namespace Torisho.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Notification");
                 });
@@ -1683,6 +1535,40 @@ namespace Torisho.Infrastructure.Migrations
                     b.ToTable("VideoLessonVocabularies", (string)null);
                 });
 
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Kanji", b =>
+                {
+                    b.HasBaseType("Torisho.Domain.Common.LearningContent");
+
+                    b.Property<string>("Character")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("DictionaryEntryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("KunYomi")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Meaning")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OnYomi")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("StrokeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StrokeOrderGifUrl")
+                        .HasColumnType("longtext");
+
+                    b.HasIndex("DictionaryEntryId");
+
+                    b.ToTable("Kanji");
+                });
+
             modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Vocabulary", b =>
                 {
                     b.HasBaseType("Torisho.Domain.Common.LearningContent");
@@ -1750,30 +1636,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.Navigation("Level");
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.CommentDomain.DictionaryComment", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
-                        .WithMany("Comments")
-                        .HasForeignKey("DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Torisho.Domain.Entities.CommentDomain.DictionaryComment", "ParentComment")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DictionaryEntry");
-
-                    b.Navigation("ParentComment");
-                });
-
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryDefinition", b =>
                 {
                     b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", null)
@@ -1781,25 +1643,6 @@ namespace Torisho.Infrastructure.Migrations
                         .HasForeignKey("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryDefinition", "DictionaryEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanji", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
-                        .WithMany("KanjiLinks")
-                        .HasForeignKey("DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.Kanji", "Kanji")
-                        .WithMany("DictionaryEntryLinks")
-                        .HasForeignKey("KanjiId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DictionaryEntry");
-
-                    b.Navigation("Kanji");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntryKanjiForm", b =>
@@ -1910,11 +1753,15 @@ namespace Torisho.Infrastructure.Migrations
 
             modelBuilder.Entity("Torisho.Domain.Entities.NotificationDomain.Notification", b =>
                 {
-                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", "User")
+                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", null)
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
@@ -2153,6 +2000,13 @@ namespace Torisho.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Kanji", b =>
+                {
+                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", null)
+                        .WithMany("Kanjis")
+                        .HasForeignKey("DictionaryEntryId");
+                });
+
             modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Vocabulary", b =>
                 {
                     b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
@@ -2173,27 +2027,15 @@ namespace Torisho.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.CommentDomain.DictionaryComment", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Navigation("DictionaryEntryLinks");
-                });
-
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("Definition");
 
                     b.Navigation("FlashCards");
 
                     b.Navigation("KanjiForms");
 
-                    b.Navigation("KanjiLinks");
+                    b.Navigation("Kanjis");
 
                     b.Navigation("ReadingForms");
 

@@ -11,12 +11,21 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
         builder.ToTable("Lessons");
         builder.HasKey(l => l.Id);
 
+        builder.Property(l => l.Slug)
+            .IsRequired()
+            .HasMaxLength(100);
+
         builder.Property(l => l.Title)
             .IsRequired()
             .HasMaxLength(200);
 
         builder.Property(l => l.Description)
             .HasMaxLength(1000);
+
+        builder.Property(l => l.SourceLevel)
+            .HasConversion<string>()
+            .HasMaxLength(10)
+            .IsRequired();
 
         builder.Property(l => l.Order)
             .IsRequired();
@@ -25,7 +34,7 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .IsRequired();
 
         builder.Property(l => l.ContentId)
-            .IsRequired();
+            .IsRequired(false);
 
         // Lesson type as string
         builder.Property(l => l.Type)
@@ -33,6 +42,10 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .HasMaxLength(50);
 
         // Indexes
+        builder.HasIndex(l => l.Slug)
+            .IsUnique()
+            .HasDatabaseName("UX_Lessons_Slug");
+
         builder.HasIndex(l => l.ChapterId)
             .HasDatabaseName("IX_Lessons_ChapterId");
 
@@ -44,6 +57,11 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
 
         builder.HasIndex(l => l.QuizId)
             .HasDatabaseName("IX_Lessons_QuizId");
+
+        builder.HasOne(l => l.Content)
+            .WithMany()
+            .HasForeignKey(l => l.ContentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Optional Quiz relationship
         builder.HasOne(l => l.Quiz)
