@@ -25,12 +25,12 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
     // Search/index helper tables (part of aggregate)
     public ICollection<DictionaryEntryKanjiForm> KanjiForms { get; private set; } = new List<DictionaryEntryKanjiForm>();
     public ICollection<DictionaryEntryReadingForm> ReadingForms { get; private set; } = new List<DictionaryEntryReadingForm>();
+    public ICollection<DictionaryEntryKanji> KanjiLinks { get; private set; } = new List<DictionaryEntryKanji>();
     public DictionaryEntryDefinition? Definition { get; private set; }
 
     // Non-aggregate references - EF Core navigation properties
     public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
     public ICollection<Vocabulary> Vocabularies { get; private set; } = new List<Vocabulary>();
-    public ICollection<Kanji> Kanjis { get; private set; } = new List<Kanji>();
     public ICollection<DictionaryComment> Comments { get; private set; } = new List<DictionaryComment>();
 
     private DictionaryEntry() { }
@@ -103,6 +103,18 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
             if (string.IsNullOrWhiteSpace(text))
                 continue;
             ReadingForms.Add(new DictionaryEntryReadingForm(Id, text));
+        }
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void ReplaceKanjiLinks(IEnumerable<(Guid KanjiId, int Position)> links)
+    {
+        KanjiLinks.Clear();
+        foreach (var (kanjiId, position) in links)
+        {
+            if (kanjiId == Guid.Empty)
+                continue;
+            KanjiLinks.Add(new DictionaryEntryKanji(Id, kanjiId, position));
         }
         UpdatedAt = DateTime.UtcNow;
     }

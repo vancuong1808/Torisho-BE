@@ -1,4 +1,4 @@
-namespace Torisho.Application.DTOs.Dictionary;
+namespace Torisho.Application.DTOs.Dictionary.Comment;
 
 public sealed record CreateDictionaryCommentRequest
 {

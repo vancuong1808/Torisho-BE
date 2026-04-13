@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260408012543_Refactor_Kanji_RemoveLearningContent")]
+    partial class Refactor_Kanji_RemoveLearningContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,7 +120,7 @@ namespace Torisho.Infrastructure.Migrations
                     b.ToTable("DictionaryComments", (string)null);
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Kanji", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1604,7 +1607,7 @@ namespace Torisho.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.Kanji", "Kanji")
+                    b.HasOne("Torisho.Domain.Entities.ContentDomain.Kanji", "Kanji")
                         .WithMany("DictionaryEntryLinks")
                         .HasForeignKey("KanjiId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1959,7 +1962,7 @@ namespace Torisho.Infrastructure.Migrations
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Kanji", b =>
                 {
                     b.Navigation("DictionaryEntryLinks");
                 });

@@ -1,3 +1,5 @@
+using Torisho.Application.DTOs.Dictionary.Comment;
+
 namespace Torisho.Application.DTOs.Dictionary;
 
 public sealed record WordDetailDto{
