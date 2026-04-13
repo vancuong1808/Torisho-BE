@@ -1,6 +1,7 @@
 using Torisho.Domain.Common;
 using Torisho.Domain.Entities.CommentDomain;
 using Torisho.Domain.Entities.ContentDomain;
+using Torisho.Domain.Entities.FlashcardDomain;
 using Torisho.Domain.Enums;
 using Torisho.Domain.Interfaces;
 
@@ -29,7 +30,7 @@ public sealed class DictionaryEntry : BaseEntity, IAggregateRoot, ISearchable
     public DictionaryEntryDefinition? Definition { get; private set; }
 
     // Non-aggregate references - EF Core navigation properties
-    public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
+    public ICollection<FlashcardItem> FlashcardItems { get; private set; } = new List<FlashcardItem>();
     public ICollection<Vocabulary> Vocabularies { get; private set; } = new List<Vocabulary>();
     public ICollection<DictionaryComment> Comments { get; private set; } = new List<DictionaryComment>();
 

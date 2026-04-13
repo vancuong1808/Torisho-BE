@@ -79,9 +79,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 });
 
         // One-to-Many relationships
-        builder.HasMany(u => u.FlashCards)
-            .WithOne(fc => fc.User)
-            .HasForeignKey(fc => fc.UserId)
+        builder.HasMany(u => u.FlashcardFolders)
+            .WithOne(folder => folder.User)
+            .HasForeignKey(folder => folder.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(u => u.FlashcardDecks)
+            .WithOne(deck => deck.User)
+            .HasForeignKey(deck => deck.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(u => u.QuizAttempts)

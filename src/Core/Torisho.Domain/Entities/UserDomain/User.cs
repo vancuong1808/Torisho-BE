@@ -1,5 +1,5 @@
 using Torisho.Domain.Common;
-using Torisho.Domain.Entities.DictionaryDomain;
+using Torisho.Domain.Entities.FlashcardDomain;
 using Torisho.Domain.Entities.NotificationDomain;
 using Torisho.Domain.Entities.ProgressDomain;
 using Torisho.Domain.Entities.QuizDomain;
@@ -20,7 +20,8 @@ public sealed class User : UserAuth, IAggregateRoot
     public IReadOnlyCollection<Role> Roles => _roles;
 
     // Non-aggregate references - EF Core navigation properties
-    public ICollection<FlashCard> FlashCards { get; private set; } = new List<FlashCard>();
+    public ICollection<FlashcardFolder> FlashcardFolders { get; private set; } = new List<FlashcardFolder>();
+    public ICollection<FlashcardDeck> FlashcardDecks { get; private set; } = new List<FlashcardDeck>();
     public ICollection<QuizAttempt> QuizAttempts { get; private set; } = new List<QuizAttempt>();
     public ICollection<LearningProgress> LearningProgresses { get; private set; } = new List<LearningProgress>();
     public ICollection<RoomParticipant> RoomParticipants { get; private set; } = new List<RoomParticipant>();
