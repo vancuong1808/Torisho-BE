@@ -4,15 +4,16 @@ CLI project to offline data import tasks.
 
 ## Configuration
 
-To keep the execution simple and straightforward, file paths and environment variables are configured directly in the code. 
+The importer now auto-detects the repository root from the current working directory and resolves:
+- `data/KANJIDIC_english`
+- `data/jmdict-eng-common-3.6.1.json`
+- `src/Presentation/Torisho.API/appsettings.Development.json`
 
-Before running the tools, open `Program.cs` and update the following variables with your local paths:
-- `kanjidicDir`: Path to your extracted KANJIDIC directory.
-- `appSettingsPath`: Path to the API's `appsettings.Development.json` (used to read the `DefaultConnection` string).
+This means you can run it from either the repository root or directly inside `src/Tools/Torisho.Importer`.
 
 ## Run
 
-Execute the following commands from the repository root (where the `.sln` file is located):
+Run from the repository root:
 
 ### Import KANJIDIC
 Imports Kanji definitions, readings, and metadata.
@@ -24,6 +25,13 @@ dotnet run --project src/Tools/Torisho.Importer -- kanjidic
 Imports Japanese vocabulary, meanings, and grammatical metadata.
 ```bash
 dotnet run --project src/Tools/Torisho.Importer -- jmdict
+```
+
+Or run directly inside `src/Tools/Torisho.Importer`:
+
+```bash
+dotnet run -- kanjidic
+dotnet run -- jmdict
 ```
 
 ### Extend For Crawl Data

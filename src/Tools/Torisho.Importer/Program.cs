@@ -4,10 +4,24 @@ using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Infrastructure;
 using Torisho.Infrastructure.Services.Dictionary;
 
-var appSettingsPath = "src/Presentation/Torisho.API/appsettings.Development.json";
+var repoRoot = FindRepoRoot(Environment.CurrentDirectory)
+    ?? FindRepoRoot(AppContext.BaseDirectory);
 
-var kanjidicDir = @"D:\PBL5\Torisho-BE\data\KANJIDIC_english"; 
-var jmdictFile = @"D:\PBL5\Torisho-BE\data\jmdict-eng-common-3.6.1.json";     
+if (repoRoot is null)
+{
+    Console.Error.WriteLine("[LỖI] Không tìm thấy thư mục gốc của repo (Torisho.sln).");
+    return 1;
+}
+
+var appSettingsPath = Path.Combine(
+    repoRoot,
+    "src",
+    "Presentation",
+    "Torisho.API",
+    "appsettings.Development.json");
+
+var kanjidicDir = Path.Combine(repoRoot, "data", "KANJIDIC_english");
+var jmdictFile = Path.Combine(repoRoot, "data", "jmdict-eng-common-3.6.1.json");
 var rebuildEntryLinks = true;
 
 // get command from args, default "kanjidic" if not provided
@@ -86,4 +100,21 @@ static string? GetConnectionString(string filePath)
     {
         return null;
     }
+}
+
+static string? FindRepoRoot(string startPath)
+{
+    var current = new DirectoryInfo(Path.GetFullPath(startPath));
+
+    while (current is not null)
+    {
+        if (File.Exists(Path.Combine(current.FullName, "Torisho.sln")))
+        {
+            return current.FullName;
+        }
+
+        current = current.Parent;
+    }
+
+    return null;
 }
