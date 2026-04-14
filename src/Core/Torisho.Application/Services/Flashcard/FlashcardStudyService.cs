@@ -66,10 +66,12 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         {
             if (TryParseCard(card, termDefinitionSeparator, out var front, out var back))
             {
+                var cleanedBack = CleanBackForQuizlet(back);
+
                 var item = new FlashcardItem(
                     deckId: request.DeckId,
                     front: front,
-                    back: back,
+                    back: cleanedBack,
                     dictionaryEntryId: null,
                     sourceType: "manual_bulk");
 
@@ -153,6 +155,19 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         back = card[(rawIndex + separator.Length)..].Trim();
 
         return !string.IsNullOrWhiteSpace(front) && !string.IsNullOrWhiteSpace(back);
+    }
+
+    private static string CleanBackForQuizlet(string back)
+    {
+        if (string.IsNullOrWhiteSpace(back))
+            return string.Empty;
+
+        var normalized = back
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("\r", "\n", StringComparison.Ordinal);
+
+        var lines = normalized.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return string.Join("<br>", lines);
     }
 
     private static string ResolveBackText(DictionaryEntry entry)
