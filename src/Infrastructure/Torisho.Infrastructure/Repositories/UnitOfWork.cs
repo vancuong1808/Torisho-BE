@@ -10,6 +10,8 @@ public class UnitOfWork : IUnitOfWork
     // Lazy initialization of repositories
     private IUserRepository? _users;
     private IDictionaryEntryRepository? _dictionaryEntries;
+    private IFlashcardDeckRepository? _flashcardDecks;
+    private IFlashcardItemRepository? _flashcardItems;
     private ILevelRepository? _levels;
     private IQuizRepository? _quizzes;
     private IQuestionRepository? _questions;
@@ -34,6 +36,12 @@ public class UnitOfWork : IUnitOfWork
 
     public IDictionaryEntryRepository DictionaryEntries => 
         _dictionaryEntries ??= new DictionaryEntryRepository(_context);
+
+    public IFlashcardDeckRepository FlashcardDecks =>
+        _flashcardDecks ??= new FlashcardDeckRepository(_context);
+
+    public IFlashcardItemRepository FlashcardItems =>
+        _flashcardItems ??= new FlashcardItemRepository(_context);
 
     public ILevelRepository Levels => 
         _levels ??= new LevelRepository(_context);
