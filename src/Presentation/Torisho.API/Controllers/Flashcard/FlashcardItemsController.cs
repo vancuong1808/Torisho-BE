@@ -7,42 +7,22 @@ using Torisho.Application.Interfaces.Flashcard;
 namespace Torisho.API.Controllers;
 
 [ApiController]
-[Route("api/flashcards")]
+[Route("api/flashcards/decks/{deckId:guid}")]
 [Authorize]
-public sealed class FlashcardController : ControllerBase
+public sealed class FlashcardItemsController : ControllerBase
 {
-    private readonly IFlashcardDeckService _flashcardDeckService;
     private readonly IFlashcardQueryService _flashcardQueryService;
     private readonly IFlashcardStudyService _flashcardStudyService;
 
-    public FlashcardController(
-        IFlashcardDeckService flashcardDeckService,
+    public FlashcardItemsController(
         IFlashcardQueryService flashcardQueryService,
         IFlashcardStudyService flashcardStudyService)
     {
-        _flashcardDeckService = flashcardDeckService;
         _flashcardQueryService = flashcardQueryService;
         _flashcardStudyService = flashcardStudyService;
     }
 
-    [HttpGet("decks")]
-    public async Task<IActionResult> GetDecks(CancellationToken ct)
-    {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized(new { message = "Invalid user context." });
-
-        try
-        {
-            var decks = await _flashcardQueryService.GetUserDecksAsync(userId, ct);
-            return Ok(decks);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    [HttpGet("decks/{deckId:guid}/items")]
+    [HttpGet("items")]
     public async Task<IActionResult> GetDeckItems(Guid deckId, CancellationToken ct)
     {
         if (deckId == Guid.Empty)
@@ -66,35 +46,14 @@ public sealed class FlashcardController : ControllerBase
         }
     }
 
-    [HttpPost("decks")]
-    public async Task<IActionResult> CreateDeck([FromBody] CreateFlashcardDeckRequest request, CancellationToken ct)
+    [HttpPost("items")]
+    public async Task<IActionResult> AddItem(Guid deckId, [FromBody] AddFromDictionaryRequest request, CancellationToken ct)
     {
-        if (request is null)
-            return BadRequest(new { message = "Request body is required." });
-        if (string.IsNullOrWhiteSpace(request.Name))
-            return BadRequest(new { message = "Deck name is required." });
-
-        if (!TryGetUserId(out var userId))
-            return Unauthorized(new { message = "Invalid user context." });
-
-        try
-        {
-            var deckId = await _flashcardDeckService.CreateAsync(userId, request, ct);
-            return Ok(new { deckId });
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    [HttpPost("add-from-dictionary")]
-    public async Task<IActionResult> AddFromDictionary([FromBody] AddFromDictionaryRequest request, CancellationToken ct)
-    {
-        if (request is null)
-            return BadRequest(new { message = "Request body is required." });
-        if (request.DeckId == Guid.Empty)
+        if (deckId == Guid.Empty)
             return BadRequest(new { message = "DeckId is required." });
+
+        if (request is null)
+            return BadRequest(new { message = "Request body is required." });
         if (request.DictionaryEntryId == Guid.Empty)
             return BadRequest(new { message = "DictionaryEntryId is required." });
 
@@ -103,7 +62,7 @@ public sealed class FlashcardController : ControllerBase
 
         try
         {
-            var flashcardItemId = await _flashcardStudyService.AddFromDictionaryAsync(userId, request, ct);
+            var flashcardItemId = await _flashcardStudyService.AddFromDictionaryAsync(userId, deckId, request, ct);
             return Ok(new { flashcardItemId });
         }
         catch (UnauthorizedAccessException ex)
@@ -121,19 +80,20 @@ public sealed class FlashcardController : ControllerBase
     }
 
     [HttpPost("bulk-import")]
-    public async Task<IActionResult> BulkImport([FromBody] BulkImportRequest request, CancellationToken ct)
+    public async Task<IActionResult> BulkImport(Guid deckId, [FromBody] BulkImportRequest request, CancellationToken ct)
     {
+        if (deckId == Guid.Empty)
+            return BadRequest(new { message = "DeckId is required." });
+
         if (request is null)
             return BadRequest(new { message = "Request body is required." });
-        if (request.DeckId == Guid.Empty)
-            return BadRequest(new { message = "DeckId is required." });
 
         if (!TryGetUserId(out var userId))
             return Unauthorized(new { message = "Invalid user context." });
 
         try
         {
-            var importedCount = await _flashcardStudyService.BulkImportAsync(userId, request, ct);
+            var importedCount = await _flashcardStudyService.BulkImportAsync(userId, deckId, request, ct);
             return Ok(new { importedCount });
         }
         catch (UnauthorizedAccessException ex)
