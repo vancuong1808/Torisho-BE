@@ -16,8 +16,8 @@ public sealed class FlashcardItem : BaseEntity
     public string Back { get; private set; } = string.Empty;
     public string? Note { get; private set; }
 
-    // manual | search | bulk_import
-    public string SourceType { get; private set; } = "manual";
+    // search | bulk_import
+    public string SourceType { get; private set; } = null!;
     public string? ExternalId { get; private set; }
 
     public bool IsFavorite { get; private set; }
@@ -29,8 +29,8 @@ public sealed class FlashcardItem : BaseEntity
         Guid deckId,
         string front,
         string back,
+        string sourceType,
         Guid? dictionaryEntryId = null,
-        string sourceType = "manual",
         string? externalId = null,
         string? note = null,
         int position = 0,

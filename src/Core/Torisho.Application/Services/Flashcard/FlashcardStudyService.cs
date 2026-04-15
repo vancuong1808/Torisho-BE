@@ -15,12 +15,12 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task<Guid> AddFromDictionaryAsync(Guid userId, AddFromDictionaryRequest request, CancellationToken ct = default)
+    public async Task<Guid> AddFromDictionaryAsync(Guid userId, Guid deckId, AddFromDictionaryRequest request, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var isOwnedByUser = await _unitOfWork.FlashcardDecks
-            .IsOwnedByUserAsync(request.DeckId, userId, ct);
+            .IsOwnedByUserAsync(deckId, userId, ct);
         if (!isOwnedByUser)
             throw new UnauthorizedAccessException("Invalid deck ownership.");
 
@@ -29,9 +29,10 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
             throw new KeyNotFoundException("Dictionary entry not found.");
 
         var item = new FlashcardItem(
-            deckId: request.DeckId,
+            deckId: deckId,
             front: entry.Keyword,
             back: ResolveBackText(entry),
+            sourceType: "dictionary",
             dictionaryEntryId: request.DictionaryEntryId);
 
         await _unitOfWork.FlashcardItems.AddAsync(item, ct);
@@ -40,12 +41,12 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         return item.Id;
     }
 
-    public async Task<int> BulkImportAsync(Guid userId, BulkImportRequest request, CancellationToken ct = default)
+    public async Task<int> BulkImportAsync(Guid userId, Guid deckId, BulkImportRequest request, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var isOwnedByUser = await _unitOfWork.FlashcardDecks
-            .IsOwnedByUserAsync(request.DeckId, userId, ct);
+            .IsOwnedByUserAsync(deckId, userId, ct);
         if (!isOwnedByUser)
             throw new UnauthorizedAccessException("Invalid deck ownership.");
 
@@ -57,7 +58,7 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         var splitOptions = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
 
         var rawCards = IsNewLineCardSeparator(cardSeparator)
-            ? request.RawText.Split(["\r\n", "\n"], splitOptions)
+            ? request.RawText.Split(new[] { "\r\n", "\n" }, splitOptions)
             : request.RawText.Split(cardSeparator, splitOptions);
 
         var itemsToInsert = new List<FlashcardItem>();
@@ -69,11 +70,11 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
                 var cleanedBack = CleanBackForQuizlet(back);
 
                 var item = new FlashcardItem(
-                    deckId: request.DeckId,
+                    deckId: deckId,
                     front: front,
                     back: cleanedBack,
                     dictionaryEntryId: null,
-                    sourceType: "manual_bulk");
+                    sourceType: "bulk_import");
 
                 itemsToInsert.Add(item);
             }
@@ -83,7 +84,7 @@ public sealed class FlashcardStudyService : IFlashcardStudyService
         {
             await _unitOfWork.FlashcardItems.AddRangeAsync(itemsToInsert, ct);
 
-            var deck = await _unitOfWork.FlashcardDecks.GetByIdAsync(request.DeckId, ct);
+            var deck = await _unitOfWork.FlashcardDecks.GetByIdAsync(deckId, ct);
             if (deck is not null)
                 deck.MarkImported("manual_bulk", $"Imported {itemsToInsert.Count} items");
 
