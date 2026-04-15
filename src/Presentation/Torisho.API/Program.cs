@@ -65,6 +65,7 @@ builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
 builder.Services.AddScoped<IFlashcardDeckService, FlashcardDeckService>();
+builder.Services.AddScoped<IFlashcardQueryService, FlashcardQueryService>();
 builder.Services.AddScoped<IFlashcardStudyService, FlashcardStudyService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();

@@ -12,14 +12,58 @@ namespace Torisho.API.Controllers;
 public sealed class FlashcardController : ControllerBase
 {
     private readonly IFlashcardDeckService _flashcardDeckService;
+    private readonly IFlashcardQueryService _flashcardQueryService;
     private readonly IFlashcardStudyService _flashcardStudyService;
 
     public FlashcardController(
         IFlashcardDeckService flashcardDeckService,
+        IFlashcardQueryService flashcardQueryService,
         IFlashcardStudyService flashcardStudyService)
     {
         _flashcardDeckService = flashcardDeckService;
+        _flashcardQueryService = flashcardQueryService;
         _flashcardStudyService = flashcardStudyService;
+    }
+
+    [HttpGet("decks")]
+    public async Task<IActionResult> GetDecks(CancellationToken ct)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid user context." });
+
+        try
+        {
+            var decks = await _flashcardQueryService.GetUserDecksAsync(userId, ct);
+            return Ok(decks);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("decks/{deckId:guid}/items")]
+    public async Task<IActionResult> GetDeckItems(Guid deckId, CancellationToken ct)
+    {
+        if (deckId == Guid.Empty)
+            return BadRequest(new { message = "DeckId is required." });
+
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid user context." });
+
+        try
+        {
+            var items = await _flashcardQueryService.GetDeckItemsAsync(deckId, userId, ct);
+            return Ok(items);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("decks")]
