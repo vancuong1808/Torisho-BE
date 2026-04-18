@@ -49,6 +49,6 @@ public sealed class FlashcardFolderConfiguration : IEntityTypeConfiguration<Flas
         builder.HasMany(x => x.Decks)
             .WithOne(x => x.Folder)
             .HasForeignKey(x => x.FolderId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
