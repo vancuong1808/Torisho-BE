@@ -39,6 +39,79 @@ public sealed class User : UserAuth, IAggregateRoot
         FullName = fullName;
     }
 
+    private User(
+        string fullName,
+        string username,
+        string email,
+        AuthProvider provider,
+        string providerId,
+        string? avatarUrl)
+        : base(username, email, provider, providerId)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("FullName is required", nameof(fullName));
+
+        FullName = fullName;
+        AvatarUrl = avatarUrl;
+    }
+
+    public static User CreateForExternalLogin(
+        string fullName,
+        string email,
+        AuthProvider provider,
+        string providerId,
+        string? avatarUrl = null,
+        string? preferredUsername = null)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email is required", nameof(email));
+
+        var username = string.IsNullOrWhiteSpace(preferredUsername)
+            ? GenerateExternalUsername(email)
+            : preferredUsername.Trim();
+
+        return new User(fullName, username, email, provider, providerId, avatarUrl);
+    }
+
+    public void LinkExternalProvider(AuthProvider provider, string providerId)
+    {
+        if (provider == AuthProvider.Local)
+            throw new ArgumentException("Provider must be external", nameof(provider));
+        if (string.IsNullOrWhiteSpace(providerId))
+            throw new ArgumentException("ProviderId is required", nameof(providerId));
+
+        if (AuthProvider == provider)
+        {
+            if (!string.IsNullOrEmpty(AuthProviderId) &&
+                !string.Equals(AuthProviderId, providerId, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"User is already linked to {provider} with a different provider ID");
+            }
+
+            AuthProviderId = providerId;
+            return;
+        }
+
+        if (AuthProvider != AuthProvider.Local)
+            throw new InvalidOperationException($"User is already linked to {AuthProvider}");
+
+        AuthProvider = provider;
+        AuthProviderId = providerId;
+    }
+
+    private static string GenerateExternalUsername(string email)
+    {
+        var prefix = email.Split('@')[0];
+        var normalizedPrefix = new string(prefix
+            .Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '.')
+            .ToArray());
+
+        if (string.IsNullOrWhiteSpace(normalizedPrefix))
+            normalizedPrefix = "user";
+
+        return normalizedPrefix.Length <= 50 ? normalizedPrefix : normalizedPrefix[..50];
+    }
+
     public void AssignRole(Role role)
     {
         ArgumentNullException.ThrowIfNull(role);
