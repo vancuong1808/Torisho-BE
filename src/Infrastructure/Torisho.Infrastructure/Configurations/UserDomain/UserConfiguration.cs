@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Torisho.Domain.Entities.UserDomain;
+using Torisho.Domain.Enums;
 
 namespace Torisho.Infrastructure.Configurations.UserDomain;
 
@@ -23,8 +24,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(255);
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(512);
+
+        builder.Property(u => u.AuthProvider)
+            .IsRequired()
+            .HasDefaultValue(AuthProvider.Local);
+
+        builder.Property(u => u.AuthProviderId)
+            .IsRequired(false)
+            .HasMaxLength(255);
 
         builder.Property(u => u.FullName)
             .IsRequired()
@@ -50,6 +59,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.Username)
             .IsUnique()
             .HasDatabaseName("IX_Users_Username");
+
+        builder.HasIndex(u => new { u.AuthProvider, u.AuthProviderId })
+            .IsUnique()
+            .HasDatabaseName("IX_Users_AuthProvider_AuthProviderId");
 
         // Index for filtering
         builder.HasIndex(u => u.Status)

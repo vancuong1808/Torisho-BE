@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Domain.Entities.UserDomain;
+using Torisho.Domain.Enums;
 using Torisho.Domain.Interfaces.Repositories;
 
 namespace Torisho.Infrastructure.Repositories;
@@ -29,6 +30,18 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _dbSet
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Username == username, ct);
+    }
+
+    public async Task<User?> GetByProviderAsync(AuthProvider provider, string providerId, CancellationToken ct = default)
+    {
+        if (provider == AuthProvider.Local)
+            throw new ArgumentException("Provider must be external", nameof(provider));
+        if (string.IsNullOrWhiteSpace(providerId))
+            throw new ArgumentException("ProviderId can't be empty!", nameof(providerId));
+
+        return await _dbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.AuthProvider == provider && u.AuthProviderId == providerId, ct);
     }
 
     public async Task<User?> GetWithRolesAsync(Guid userId, CancellationToken ct = default)
