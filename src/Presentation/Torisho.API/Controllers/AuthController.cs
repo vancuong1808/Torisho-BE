@@ -78,6 +78,42 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("external-login")]
+    public async Task<IActionResult> ExternalLogin([FromBody] ExternalLoginRequest request, CancellationToken ct)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request?.Provider))
+                return BadRequest(new { message = "Provider is required" });
+
+            if (string.IsNullOrWhiteSpace(request?.ProviderToken))
+                return BadRequest(new { message = "Provider token is required" });
+
+            var response = await _authService.ExternalLoginAsync(request, ct);
+
+            SetRefreshTokenCookie(response.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = response.AccessToken,
+                expiration = response.Expiration,
+                user = response.User
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(CancellationToken ct)
     {
