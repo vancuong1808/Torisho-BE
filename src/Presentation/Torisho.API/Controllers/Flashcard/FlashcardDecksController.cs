@@ -23,14 +23,14 @@ public sealed class FlashcardDecksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetDecks(CancellationToken ct)
+    public async Task<IActionResult> GetDecks([FromQuery] Guid? folderId, CancellationToken ct)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized(new { message = "Invalid user context." });
 
         try
         {
-            var decks = await _flashcardQueryService.GetUserDecksAsync(userId, ct);
+            var decks = await _flashcardQueryService.GetUserDecksAsync(userId, folderId, ct);
             return Ok(decks);
         }
         catch (ArgumentException ex)

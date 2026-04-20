@@ -14,27 +14,56 @@ public sealed class FlashcardQueryService : IFlashcardQueryService
         _context = context;
     }
 
-    public async Task<IEnumerable<FlashcardDeckSummaryDto>> GetUserDecksAsync(
+    public async Task<IEnumerable<FlashcardFolderDto>> GetUserFoldersAsync(
         Guid userId,
         CancellationToken ct = default)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId cannot be empty", nameof(userId));
 
-        return await _context.Set<FlashcardDeck>()
+        return await _context.Set<FlashcardFolder>()
             .AsNoTracking()
-            .Where(d => d.UserId == userId && !d.IsArchived)
+            .Where(f => f.UserId == userId)
+            .OrderBy(f => f.DisplayOrder)
+            .ThenBy(f => f.CreatedAt)
+            .Select(f => new FlashcardFolderDto(
+                f.Id,
+                f.Name,
+                f.Description,
+                f.DisplayOrder,
+                f.Decks.Count(d => !d.IsArchived),
+                f.CreatedAt))
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<FlashcardDeckDto>> GetUserDecksAsync(
+        Guid userId,
+        Guid? folderId = null,
+        CancellationToken ct = default)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+
+        if (folderId.HasValue && folderId.Value == Guid.Empty)
+            throw new ArgumentException("FolderId cannot be empty", nameof(folderId));
+
+        var query = _context.Set<FlashcardDeck>()
+            .AsNoTracking()
+            .Where(d => d.UserId == userId && !d.IsArchived);
+
+        if (folderId.HasValue)
+            query = query.Where(d => d.FolderId == folderId.Value);
+
+        return await query
             .OrderByDescending(d => d.CreatedAt)
-            .Select(d => new FlashcardDeckSummaryDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description,
-                FolderId = d.FolderId,
-                FolderName = d.Folder != null ? d.Folder.Name : null,
-                TotalItems = d.Items.Count,
-                CreatedAt = d.CreatedAt
-            })
+            .Select(d => new FlashcardDeckDto(
+                d.Id,
+                d.Name,
+                d.Description,
+                d.FolderId,
+                d.Folder != null ? d.Folder.Name : null,
+                d.Items.Count,
+                d.CreatedAt))
             .ToListAsync(ct);
     }
 
