@@ -5,6 +5,7 @@ public sealed record WordSchemaDto(
     string? Kanji,
     string Kana,
     bool IsCommon,
+    string? MatchedReading,
     string PrimaryMeaning
 );
 

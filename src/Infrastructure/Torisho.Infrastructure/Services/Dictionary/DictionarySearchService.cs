@@ -53,12 +53,13 @@ public sealed class DictionarySearchService : IDictionarySearchService
             {
                 var id = ReadGuid(reader, 0);
                 var rawJson = reader.IsDBNull(1) ? null : reader.GetString(1);
+                var matchedReading = reader.IsDBNull(2) ? null : reader.GetString(2);
 
                 var word = DictionaryRawJsonMapper.TryParseWord(rawJson);
                 if (word is null)
                     continue;
 
-                results.Add(word with { Id = id });
+                results.Add(word with { Id = id, MatchedReading = matchedReading });
             }
 
             return results;

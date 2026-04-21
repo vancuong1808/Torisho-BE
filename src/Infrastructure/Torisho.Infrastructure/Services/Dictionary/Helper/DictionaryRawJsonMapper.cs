@@ -26,6 +26,7 @@ internal static class DictionaryRawJsonMapper
                 Kanji: kanji,
                 Kana: kana ?? string.Empty,
                 IsCommon: isCommon,
+                MatchedReading: null,
                 PrimaryMeaning: primaryMeaning);
         }
         catch (JsonException)

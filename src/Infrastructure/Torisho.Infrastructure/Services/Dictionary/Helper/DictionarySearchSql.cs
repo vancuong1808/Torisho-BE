@@ -6,6 +6,13 @@ internal static class DictionarySearchSql
 SELECT
     e.id,
     e.raw_json,
+    (
+        SELECT r.reading_text
+        FROM entry_reading r
+        WHERE r.entry_id = e.id
+          AND r.reading_text = @p_keyword
+        LIMIT 1
+    ) AS matched_reading,
     e.primary_headword,
 
     EXISTS(
