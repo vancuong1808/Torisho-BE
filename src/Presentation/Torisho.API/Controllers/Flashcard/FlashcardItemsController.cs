@@ -56,6 +56,8 @@ public sealed class FlashcardItemsController : ControllerBase
             return BadRequest(new { message = "Request body is required." });
         if (request.DictionaryEntryId == Guid.Empty)
             return BadRequest(new { message = "DictionaryEntryId is required." });
+        if (request.MaxTatoebaExamples < 0)
+            return BadRequest(new { message = "MaxTatoebaExamples cannot be negative." });
 
         if (!TryGetUserId(out var userId))
             return Unauthorized(new { message = "Invalid user context." });
@@ -76,6 +78,72 @@ public sealed class FlashcardItemsController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPut("items/{itemId:guid}")]
+    public async Task<IActionResult> UpdateItem(
+        Guid deckId,
+        Guid itemId,
+        [FromBody] UpdateFlashcardItemRequest request,
+        CancellationToken ct)
+    {
+        if (deckId == Guid.Empty)
+            return BadRequest(new { message = "DeckId is required." });
+        if (itemId == Guid.Empty)
+            return BadRequest(new { message = "ItemId is required." });
+        if (request is null)
+            return BadRequest(new { message = "Request body is required." });
+        if (string.IsNullOrWhiteSpace(request.Front))
+            return BadRequest(new { message = "Front is required." });
+        if (string.IsNullOrWhiteSpace(request.Back))
+            return BadRequest(new { message = "Back is required." });
+
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid user context." });
+
+        try
+        {
+            await _flashcardStudyService.UpdateItemAsync(userId, deckId, itemId, request, ct);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("items/{itemId:guid}")]
+    public async Task<IActionResult> DeleteItem(Guid deckId, Guid itemId, CancellationToken ct)
+    {
+        if (deckId == Guid.Empty)
+            return BadRequest(new { message = "DeckId is required." });
+        if (itemId == Guid.Empty)
+            return BadRequest(new { message = "ItemId is required." });
+
+        if (!TryGetUserId(out var userId))
+            return Unauthorized(new { message = "Invalid user context." });
+
+        try
+        {
+            await _flashcardStudyService.DeleteItemAsync(userId, deckId, itemId, ct);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
     }
 

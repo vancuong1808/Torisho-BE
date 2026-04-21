@@ -6,6 +6,8 @@ public interface IFlashcardQueryService
 {
     Task<IEnumerable<FlashcardFolderDto>> GetUserFoldersAsync(Guid userId, CancellationToken ct = default);
 
+    Task<FlashcardDeckDto?> GetDeckByIdAsync(Guid userId, Guid deckId, CancellationToken ct = default);
+
     Task<IEnumerable<FlashcardDeckDto>> GetUserDecksAsync(
         Guid userId,
         Guid? folderId = null,

@@ -36,6 +36,27 @@ public sealed class FlashcardQueryService : IFlashcardQueryService
             .ToListAsync(ct);
     }
 
+    public async Task<FlashcardDeckDto?> GetDeckByIdAsync(Guid userId, Guid deckId, CancellationToken ct = default)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId cannot be empty", nameof(userId));
+        if (deckId == Guid.Empty)
+            throw new ArgumentException("DeckId cannot be empty", nameof(deckId));
+
+        return await _context.Set<FlashcardDeck>()
+            .AsNoTracking()
+            .Where(d => d.Id == deckId && d.UserId == userId && !d.IsArchived)
+            .Select(d => new FlashcardDeckDto(
+                d.Id,
+                d.Name,
+                d.Description,
+                d.FolderId,
+                d.Folder != null ? d.Folder.Name : null,
+                d.Items.Count,
+                d.CreatedAt))
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task<IEnumerable<FlashcardDeckDto>> GetUserDecksAsync(
         Guid userId,
         Guid? folderId = null,
