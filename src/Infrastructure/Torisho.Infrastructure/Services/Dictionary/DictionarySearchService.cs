@@ -55,7 +55,7 @@ public sealed class DictionarySearchService : IDictionarySearchService
                 var rawJson = reader.IsDBNull(1) ? null : reader.GetString(1);
                 var matchedReading = reader.IsDBNull(2) ? null : reader.GetString(2);
 
-                var word = DictionaryRawJsonMapper.TryParseWord(rawJson);
+                var word = DictionaryRawJsonMapper.TryParseWord(rawJson, keywordLower);
                 if (word is null)
                     continue;
 

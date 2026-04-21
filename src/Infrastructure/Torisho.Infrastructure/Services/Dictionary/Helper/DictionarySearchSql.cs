@@ -101,15 +101,23 @@ ORDER BY
     CASE WHEN @p_is_latin = 0 THEN exact_rd ELSE 0 END DESC,
     CASE WHEN @p_is_latin = 1 THEN exact_gloss ELSE 0 END DESC,
     CASE WHEN @p_is_latin = 1 THEN primary_gloss_segment ELSE 0 END DESC,
-    is_common DESC,
     CASE WHEN @p_is_latin = 1 THEN exact_gloss_word ELSE 0 END DESC,
+    is_common DESC,
     entry_prefix_of_keyword_kj DESC,
     entry_prefix_of_keyword_rd DESC,
     prefix_kj DESC,
     prefix_rd DESC,
     prefix_gloss DESC,
     CASE WHEN exact_gloss_word = 0 AND exact_gloss = 0 THEN COALESCE(like_gloss_len, 999999) ELSE 0 END ASC,
-    ft_score DESC,
+    CASE
+        WHEN @p_is_latin = 1
+             AND exact_gloss = 0
+             AND primary_gloss_segment = 0
+             AND exact_gloss_word = 0
+             AND prefix_gloss = 0
+        THEN ft_score
+        ELSE 0
+    END DESC,
     like_gloss DESC,
     hw_len ASC,
     e.primary_headword ASC
