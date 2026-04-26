@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using System.Text;
 using Torisho.Application;
 using Torisho.Application.Interfaces.Auth;
@@ -18,6 +20,7 @@ using Torisho.Infrastructure.Repositories;
 using Torisho.Infrastructure.Services.Auth;
 using Torisho.Infrastructure.Services.Room;
 using Torisho.API.Hubs;
+using Torisho.Application.Validators.Auth;
 using Torisho.Infrastructure.Services.Dictionary;
 using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
@@ -115,6 +118,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

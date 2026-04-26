@@ -46,6 +46,14 @@ public abstract class UserAuth : BaseEntity
         AuthProviderId = providerId;
     }
 
+    public void ChangePassword(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+            throw new ArgumentException("New password hash is required", nameof(newPasswordHash));
+
+        PasswordHash = newPasswordHash;
+    }
+
     public bool IsExternalUser => AuthProvider != AuthProvider.Local;
 
     public virtual bool Authenticate(string password)

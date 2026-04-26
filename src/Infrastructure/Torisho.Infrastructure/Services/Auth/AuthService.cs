@@ -188,6 +188,29 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken ct = default)
+    {
+        var user = await _uow.Users.GetWithRolesAsync(userId, ct)
+            ?? throw new UnauthorizedAccessException("User not found");
+
+        if (string.IsNullOrEmpty(user.PasswordHash))
+            throw new InvalidOperationException("Social accounts cannot change password directly. Please use 'Set Password' first.");
+
+        var currentHash = user.PasswordHash;
+
+        if (!_passwordHasher.VerifyPassword(currentHash, request.CurrentPassword))
+            throw new UnauthorizedAccessException("Current password is incorrect");
+
+        if (_passwordHasher.VerifyPassword(currentHash, request.NewPassword))
+            throw new InvalidOperationException("New password must be different from the current password");
+
+        var newHash = _passwordHasher.HashPassword(request.NewPassword);
+        user.ChangePassword(newHash);
+
+        await _uow.RefreshTokens.RevokeAllUserTokensAsync(userId, ct);
+        await _uow.SaveChangesAsync(ct);
+    }
+
     public Task<bool> ValidateTokenAsync(string token, CancellationToken ct = default)
     {
         var principal = _jwtTokenService.ValidateToken(token);

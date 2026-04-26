@@ -24,15 +24,6 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(request?.Username))
-                return BadRequest(new { message = "Username is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Email))
-                return BadRequest(new { message = "Email is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Password))
-                return BadRequest(new { message = "Password is required" });
-            
             var response = await _authService.RegisterAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -55,12 +46,6 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(request?.Username))
-                return BadRequest(new { message = "Username is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Password))
-                return BadRequest(new { message = "Password is required" });
-            
             var response = await _authService.LoginAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -151,6 +136,26 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete("refreshToken");
         
         return Ok(new { message = "Logged out successfully" });
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _authService.ChangePasswordAsync(userId, request, ct);
+            return Ok(new { message = "Password changed successfully. Please login again." });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize]
