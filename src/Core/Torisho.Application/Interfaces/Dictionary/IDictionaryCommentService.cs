@@ -18,4 +18,10 @@ public interface IDictionaryCommentService
         Guid userId,
         UpdateDictionaryCommentRequest request,
         CancellationToken ct = default);
+
+    Task<DictionaryCommentDto> DeleteAsync(
+        Guid dictionaryEntryId,
+        Guid commentId,
+        Guid userId,
+        CancellationToken ct = default);
 }
