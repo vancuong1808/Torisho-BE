@@ -24,6 +24,7 @@ public class UnitOfWork : IUnitOfWork
     private IChapterProgressRepository? _chapterProgress;
     private IDailyActivitiesRepository? _dailyActivities;
     private IRefreshTokenRepository? _refreshTokens;
+    private IUserTokenRepository? _userTokens;
     private IDictionaryCommentRepository? _dictionaryComments;
 
     public UnitOfWork(IDataContext context)
@@ -79,6 +80,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IRefreshTokenRepository RefreshTokens => 
         _refreshTokens ??= new RefreshTokenRepository(_context);
+
+    public IUserTokenRepository UserTokens =>
+        _userTokens ??= new UserTokenRepository(_context);
 
     public IVideoLessonCommentRepository VideoLessonComments => throw new NotImplementedException();
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260430082344_AddUserTokens")]
+    partial class AddUserTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -583,83 +586,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.ToTable("flashcard_items", (string)null);
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Character")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("varchar(1)")
-                        .UseCollation("utf8mb4_bin");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("Frequency")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Grade")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("JlptLevel")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Kunyomi")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
-
-                    b.Property<string>("MeaningsJson")
-                        .IsRequired()
-                        .HasColumnType("json");
-
-                    b.Property<string>("Onyomi")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<int>("StrokeCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("UnicodeHex")
-                        .HasMaxLength(16)
-                        .HasColumnType("varchar(16)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Character")
-                        .IsUnique()
-                        .HasDatabaseName("ux_kanji_character");
-
-                    b.HasIndex("Frequency")
-                        .HasDatabaseName("idx_kanji_freq");
-
-                    b.HasIndex("Grade")
-                        .HasDatabaseName("idx_kanji_grade");
-
-                    b.HasIndex("JlptLevel")
-                        .HasDatabaseName("idx_kanji_jlpt");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_kanji_type");
-
-                    b.HasIndex("UnicodeHex")
-                        .HasDatabaseName("idx_kanji_ucs");
-
-                    b.ToTable("Kanji", (string)null);
-                });
-
             modelBuilder.Entity("Torisho.Domain.Entities.LearningDomain.Chapter", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1210,21 +1136,6 @@ namespace Torisho.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<Guid?>("CurrentChapterId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("CurrentLessonId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<float>("CurrentLessonProgressPercent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("float")
-                        .HasDefaultValue(0f);
-
-                    b.Property<string>("CurrentSection")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
 
                     b.Property<float>("GrammarProgress")
                         .ValueGeneratedOnAdd()
@@ -2489,11 +2400,6 @@ namespace Torisho.Infrastructure.Migrations
             modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardFolder", b =>
                 {
                     b.Navigation("Decks");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Navigation("DictionaryEntryLinks");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.LearningDomain.Chapter", b =>
