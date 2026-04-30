@@ -99,6 +99,27 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken ct)
+    {
+        await _authService.ForgotPasswordAsync(request, ct);
+        return Ok(new { message = "If the email exists, a reset link will be sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken ct)
+    {
+        try
+        {
+            await _authService.ResetPasswordAsync(request, ct);
+            return Ok(new { message = "Password reset successfully." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(CancellationToken ct)
     {
