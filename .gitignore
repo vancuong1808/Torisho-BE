@@ -90,3 +90,7 @@ yarn-error.log*
 # Local environment / secrets
 .env
 .appsettings.Development.json
+
+# ===== Misc =====
+docs/
+raw_data/

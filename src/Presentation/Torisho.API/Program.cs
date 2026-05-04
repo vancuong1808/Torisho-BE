@@ -7,8 +7,10 @@ using Torisho.Application.Interfaces.Auth;
 using Torisho.Application.Interfaces.Room;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Application.Interfaces.Learning;
+using Torisho.Application.Interfaces.Quiz;
 using Torisho.Application.Services.Dictionary;
 using Torisho.Application.Services.Learning;
+using Torisho.Application.Services.Quiz;
 using Torisho.Domain.Interfaces;
 using Torisho.Domain.Interfaces.Repositories;
 using Torisho.Infrastructure;
@@ -21,6 +23,8 @@ using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMemoryCache();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -59,6 +63,9 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<ICurriculumImportService, CurriculumImportService>();
 builder.Services.AddScoped<ILearningQueryService, LearningQueryService>();
+builder.Services.AddScoped<IPreparedQuizService, PreparedQuizService>();
+builder.Services.AddScoped<IDailyQuizService, DailyQuizService>();
+builder.Services.AddHttpClient<IQuizTemplateAiService, QuizTemplateAiService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
