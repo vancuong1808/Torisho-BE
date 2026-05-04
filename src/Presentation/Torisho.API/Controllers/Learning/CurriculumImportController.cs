@@ -20,10 +20,12 @@ public sealed class CurriculumImportController : ControllerBase
     public async Task<ActionResult<CurriculumImportResult>> ImportCurriculum(
         [FromQuery] string? folderPath,
         [FromQuery] bool clearExisting = false,
+        [FromQuery] bool pregenerateLessonQuizzes = true,
+        [FromQuery] bool useAiForPregenerate = true,
         CancellationToken ct = default)
     {
-        // Torisho.API -> Presentation -> src -> Torisho-BE -> workspace root
-        var workspaceRoot = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", "..", "..", ".."));
+        // Torisho.API -> Presentation -> src -> Torisho-BE repository root
+        var workspaceRoot = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", "..", ".."));
         var rawDataRoot = Path.GetFullPath(Path.Combine(workspaceRoot, "raw_data"));
 
         var relativePath = string.IsNullOrWhiteSpace(folderPath)
@@ -38,7 +40,12 @@ public sealed class CurriculumImportController : ControllerBase
         if (!Directory.Exists(requestedFullPath))
             return BadRequest(new { message = $"Folder not found: {relativePath}" });
 
-        var result = await _importService.ImportFromFolderAsync(requestedFullPath, clearExisting, ct);
+        var result = await _importService.ImportFromFolderAsync(
+            requestedFullPath,
+            clearExisting,
+            pregenerateLessonQuizzes,
+            useAiForPregenerate,
+            ct);
         return Ok(result);
     }
 }
