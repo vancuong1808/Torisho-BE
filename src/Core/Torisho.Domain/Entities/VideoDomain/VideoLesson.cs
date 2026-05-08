@@ -1,5 +1,4 @@
 using Torisho.Domain.Common;
-using Torisho.Domain.Entities.ContentDomain;
 using Torisho.Domain.Entities.QuizDomain;
 using Torisho.Domain.Enums;
 
@@ -13,11 +12,9 @@ public sealed class VideoLesson : LearningContent, IAggregateRoot
     public int Duration { get; private set; }
     public int Order { get; private set; }
 
-    // DDD: Aggregate - VideoLesson manages Subtitles and Vocabularies through domain methods
+    // DDD: Aggregate - VideoLesson manages Subtitles through domain methods
     private readonly HashSet<Subtitle> _subtitles = new();
     public IReadOnlyCollection<Subtitle> Subtitles => _subtitles;
-    private readonly HashSet<Vocabulary> _vocabularies = new();
-    public IReadOnlyCollection<Vocabulary> Vocabularies => _vocabularies;
     
     // Non-aggregate references - EF Core navigation properties
     public ICollection<VideoProgress> VideoProgresses { get; private set; } = new List<VideoProgress>();
@@ -70,17 +67,5 @@ public sealed class VideoLesson : LearningContent, IAggregateRoot
     {
         ArgumentNullException.ThrowIfNull(subtitle);
         _subtitles.Remove(subtitle);
-    }
-
-    public void AddVocabulary(Vocabulary vocabulary)
-    {
-        ArgumentNullException.ThrowIfNull(vocabulary);
-        _vocabularies.Add(vocabulary);
-    }
-
-    public void RemoveVocabulary(Vocabulary vocabulary)
-    {
-        ArgumentNullException.ThrowIfNull(vocabulary);
-        _vocabularies.Remove(vocabulary);
     }
 }

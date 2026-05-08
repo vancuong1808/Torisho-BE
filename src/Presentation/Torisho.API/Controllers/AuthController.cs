@@ -24,15 +24,6 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(request?.Username))
-                return BadRequest(new { message = "Username is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Email))
-                return BadRequest(new { message = "Email is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Password))
-                return BadRequest(new { message = "Password is required" });
-            
             var response = await _authService.RegisterAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -55,12 +46,6 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(request?.Username))
-                return BadRequest(new { message = "Username is required" });
-            
-            if (string.IsNullOrWhiteSpace(request?.Password))
-                return BadRequest(new { message = "Password is required" });
-            
             var response = await _authService.LoginAsync(request, ct);
             
             SetRefreshTokenCookie(response.RefreshToken);
@@ -75,6 +60,42 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("external-login")]
+    public async Task<IActionResult> ExternalLogin([FromBody] ExternalLoginRequest request, CancellationToken ct)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request?.Provider))
+                return BadRequest(new { message = "Provider is required" });
+
+            if (string.IsNullOrWhiteSpace(request?.ProviderToken))
+                return BadRequest(new { message = "Provider token is required" });
+
+            var response = await _authService.ExternalLoginAsync(request, ct);
+
+            SetRefreshTokenCookie(response.RefreshToken);
+
+            return Ok(new
+            {
+                accessToken = response.AccessToken,
+                expiration = response.Expiration,
+                user = response.User
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -115,6 +136,26 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete("refreshToken");
         
         return Ok(new { message = "Logged out successfully" });
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await _authService.ChangePasswordAsync(userId, request, ct);
+            return Ok(new { message = "Password changed successfully. Please login again." });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize]

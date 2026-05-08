@@ -81,10 +81,10 @@ public class DictionaryEntryConfiguration : IEntityTypeConfiguration<DictionaryE
 
         // Relationship
 
-        builder.HasMany(de => de.FlashCards)
-            .WithOne(fc => fc.DictionaryEntry)
-            .HasForeignKey(fc => fc.DictionaryEntryId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(de => de.FlashcardItems)
+            .WithOne(item => item.DictionaryEntry)
+            .HasForeignKey(item => item.DictionaryEntryId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasMany(de => de.KanjiForms)
             .WithOne()

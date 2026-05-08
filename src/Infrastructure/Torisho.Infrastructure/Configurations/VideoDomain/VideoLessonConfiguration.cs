@@ -44,10 +44,6 @@ public class VideoLessonConfiguration : IEntityTypeConfiguration<VideoLesson>
             .HasForeignKey(s => s.VideoLessonId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(vl => vl.Vocabularies)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("VideoLessonVocabularies"));
-
         builder.HasMany(vl => vl.VideoProgresses)
             .WithOne(vp => vp.VideoLesson)
             .HasForeignKey(vp => vp.VideoLessonId)

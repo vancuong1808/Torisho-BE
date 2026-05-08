@@ -189,6 +189,54 @@ public sealed class DictionaryCommentService : IDictionaryCommentService
         };
     }
 
+    public async Task<DictionaryCommentDto> DeleteAsync(
+        Guid dictionaryEntryId,
+        Guid commentId,
+        Guid userId,
+        CancellationToken ct = default)
+    {
+        if (dictionaryEntryId == Guid.Empty)
+            throw new ArgumentException("Dictionary entry id is required", nameof(dictionaryEntryId));
+
+        if (commentId == Guid.Empty)
+            throw new ArgumentException("Comment id is required", nameof(commentId));
+
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User id is required", nameof(userId));
+
+        var comment = await _unitOfWork.DictionaryComments.GetByIdAsync(commentId, ct);
+        if (comment is null || comment.DictionaryEntryId != dictionaryEntryId)
+            throw new KeyNotFoundException("Comment not found");
+
+        if (comment.UserId != userId)
+            throw new UnauthorizedAccessException("You can only delete your own comment");
+
+        if (comment.IsDeleted)
+            throw new InvalidOperationException("Comment has already been deleted");
+
+        comment.SoftDelete();
+
+        await _unitOfWork.DictionaryComments.UpdateAsync(comment, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        var user = await _unitOfWork.Users.GetByIdAsync(comment.UserId, ct);
+
+        return new DictionaryCommentDto
+        {
+            Id = comment.Id,
+            UserId = comment.UserId,
+            UserFullName = user?.FullName ?? string.Empty,
+            UserAvatarUrl = user?.AvatarUrl,
+            Content = comment.Content,
+            IsEdited = comment.IsEdited,
+            IsDeleted = comment.IsDeleted,
+            ParentCommentId = comment.ParentCommentId,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            Replies = new List<DictionaryCommentDto>()
+        };
+    }
+
     private static void SortRepliesRecursively(DictionaryCommentDto comment)
     {
         comment.Replies.Sort((left, right) => left.CreatedAt.CompareTo(right.CreatedAt));

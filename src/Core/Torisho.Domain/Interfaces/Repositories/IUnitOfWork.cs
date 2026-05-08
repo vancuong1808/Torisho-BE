@@ -8,6 +8,9 @@ public interface IUnitOfWork
 	IUserRepository Users { get; }
 	IRefreshTokenRepository RefreshTokens { get; }
 	IDictionaryEntryRepository DictionaryEntries { get; }
+	IFlashcardFolderRepository FlashcardFolders { get; }
+	IFlashcardDeckRepository FlashcardDecks { get; }
+	IFlashcardItemRepository FlashcardItems { get; }
 	ILevelRepository Levels { get; }
 	IQuizRepository Quizzes { get; }
 	IQuestionRepository Questions { get; }

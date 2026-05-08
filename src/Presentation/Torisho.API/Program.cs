@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using System.Text;
 using Torisho.Application;
 using Torisho.Application.Interfaces.Auth;
+using Torisho.Application.Interfaces.Flashcard;
 using Torisho.Application.Interfaces.Room;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Application.Interfaces.Learning;
+using Torisho.Application.Services.Flashcard;
 using Torisho.Application.Services.Dictionary;
 using Torisho.Application.Services.Learning;
 using Torisho.Domain.Interfaces;
@@ -16,6 +20,7 @@ using Torisho.Infrastructure.Repositories;
 using Torisho.Infrastructure.Services.Auth;
 using Torisho.Infrastructure.Services.Room;
 using Torisho.API.Hubs;
+using Torisho.Application.Validators.Auth;
 using Torisho.Infrastructure.Services.Dictionary;
 using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
@@ -58,6 +63,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<ICurriculumImportService, CurriculumImportService>();
@@ -65,6 +71,10 @@ builder.Services.AddScoped<ILearningQueryService, LearningQueryService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
+builder.Services.AddScoped<IFlashcardDeckService, FlashcardDeckService>();
+builder.Services.AddScoped<IFlashcardFolderService, FlashcardFolderService>();
+builder.Services.AddScoped<IFlashcardQueryService, FlashcardQueryService>();
+builder.Services.AddScoped<IFlashcardStudyService, FlashcardStudyService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();
 builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
@@ -114,6 +124,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

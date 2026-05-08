@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Torisho.Domain.Enums;
 using Torisho.Domain.Entities.UserDomain;
 
 namespace Torisho.Domain.Interfaces.Repositories;
@@ -14,6 +15,10 @@ public interface IUserRepository : IRepository<User>
     // Get user by username
     // Use cases: Login authentication, Public profile display, Validate @mentions
     Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default);
+
+    // Get user by external provider identity
+    // Use cases: OAuth login, linked account lookup
+    Task<User?> GetByProviderAsync(AuthProvider provider, string providerId, CancellationToken ct = default);
 
     // Get user with roles and permissions (eager loading)
     // Use cases: Authorization check, Admin panel display, Access control validation
