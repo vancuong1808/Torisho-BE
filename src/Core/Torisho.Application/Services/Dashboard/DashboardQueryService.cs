@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Application.DTOs.Dashboard;
+using Torisho.Application.DTOs.Quiz;
 using Torisho.Application.Interfaces.Dashboard;
+using Torisho.Application.Interfaces.Quiz;
 using Torisho.Domain.Entities.DictionaryDomain;
 using Torisho.Domain.Entities.LearningDomain;
 using Torisho.Domain.Entities.ProgressDomain;
@@ -13,11 +15,16 @@ public sealed class DashboardQueryService : IDashboardQueryService
 {
     private readonly IDataContext _context;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDailyQuizService _dailyQuizService;
 
-    public DashboardQueryService(IDataContext context, IUnitOfWork unitOfWork)
+    public DashboardQueryService(
+        IDataContext context,
+        IUnitOfWork unitOfWork,
+        IDailyQuizService dailyQuizService)
     {
         _context = context;
         _unitOfWork = unitOfWork;
+        _dailyQuizService = dailyQuizService;
     }
 
     public async Task<DashboardResponseDto> GetDashboardAsync(Guid userId, int? year = null, int? month = null, CancellationToken ct = default)
@@ -80,7 +87,8 @@ public sealed class DashboardQueryService : IDashboardQueryService
             {
                 Date = today,
                 Timezone = "Asia/Saigon",
-                DailyWord = await BuildDailyWordAsync(today, ct)
+                DailyWord = await BuildDailyWordAsync(today, ct),
+                DailyQuiz = await BuildDashboardDailyQuizAsync(userId, ct)
             },
             ProgressByLevel = levels.Select(level =>
             {
@@ -114,6 +122,18 @@ public sealed class DashboardQueryService : IDashboardQueryService
                     .ToList()
             }
         };
+    }
+
+    private async Task<DailyQuizDto?> BuildDashboardDailyQuizAsync(Guid userId, CancellationToken ct)
+    {
+        try
+        {
+            return await _dailyQuizService.GetDailyQuizAsync(userId, ct);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
     }
 
     private async Task<DashboardContinueLearningDto?> BuildContinueLearningAsync(

@@ -1,3 +1,5 @@
+using Torisho.Application.DTOs.Quiz;
+
 namespace Torisho.Application.DTOs.Dashboard;
 
 public sealed record DashboardResponseDto
@@ -25,6 +27,7 @@ public sealed record DashboardTodayDto
     public DateOnly Date { get; init; }
     public string Timezone { get; init; } = "Asia/Saigon";
     public DashboardDailyWordDto? DailyWord { get; init; }
+    public DailyQuizDto? DailyQuiz { get; init; }
 }
 
 public sealed record DashboardDailyWordDto
