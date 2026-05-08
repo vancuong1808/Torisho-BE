@@ -35,14 +35,12 @@ public class ChapterProgressConfiguration : IEntityTypeConfiguration<ChapterProg
         builder.Property(cp => cp.LastUpdated)
             .IsRequired();
 
-        // Indexes
         builder.HasIndex(cp => cp.UserId)
             .HasDatabaseName("IX_ChapterProgresses_UserId");
 
         builder.HasIndex(cp => cp.ChapterId)
             .HasDatabaseName("IX_ChapterProgresses_ChapterId");
 
-        // Unique: one progress per user per chapter
         builder.HasIndex(cp => new { cp.UserId, cp.ChapterId })
             .IsUnique()
             .HasDatabaseName("IX_ChapterProgresses_UserId_ChapterId");
@@ -53,7 +51,6 @@ public class ChapterProgressConfiguration : IEntityTypeConfiguration<ChapterProg
         builder.HasIndex(cp => new { cp.UserId, cp.IsUnlocked })
             .HasDatabaseName("IX_ChapterProgresses_UserId_IsUnlocked");
 
-        // Relationship
         builder.HasOne(cp => cp.Chapter)
             .WithMany()
             .HasForeignKey(cp => cp.ChapterId)

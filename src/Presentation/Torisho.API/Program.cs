@@ -19,6 +19,9 @@ using Torisho.API.Hubs;
 using Torisho.Infrastructure.Services.Dictionary;
 using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
+using Torisho.Application.Interfaces.Dashboard;
+using Torisho.Application.Services.Dashboard;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +68,10 @@ builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>(
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();
 builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
+builder.Services.AddScoped<ILearningTrackingService, LearningTrackingService>();
+builder.Services.AddScoped<IDashboardQueryService, DashboardQueryService>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
+
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");

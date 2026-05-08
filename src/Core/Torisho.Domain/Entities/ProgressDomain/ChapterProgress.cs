@@ -8,22 +8,21 @@ public sealed class ChapterProgress : BaseEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
     public User? User { get; private set; }
-    
+
     public Guid ChapterId { get; private set; }
     public Chapter? Chapter { get; private set; }
-    
+
     public Guid LevelId { get; private set; }
-    
+
     public bool IsUnlocked { get; private set; }
     public int CompletedLessonCount { get; private set; }
     public int TotalLessonCount { get; private set; }
     public float CompletionPercent { get; private set; }
-    
+
     public DateTime? UnlockedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public DateTime LastUpdated { get; private set; }
 
-    // DDD: Aggregate - ChapterProgress manages CompletedLessonIds through domain methods
     private readonly HashSet<Guid> _completedLessonIds = new();
     public IReadOnlyCollection<Guid> CompletedLessonIds => _completedLessonIds;
 
@@ -46,7 +45,7 @@ public sealed class ChapterProgress : BaseEntity, IAggregateRoot
         TotalLessonCount = totalLessonCount;
         IsUnlocked = isUnlocked;
         LastUpdated = DateTime.UtcNow;
-        
+
         if (isUnlocked)
             UnlockedAt = DateTime.UtcNow;
     }
@@ -61,25 +60,19 @@ public sealed class ChapterProgress : BaseEntity, IAggregateRoot
         }
     }
 
-    public void IncrementCompletedLesson()
+    public void UpdatePercent(float completionPercent, int totalLessonCount)
     {
-        if (CompletedLessonCount < TotalLessonCount)
-        {
-            CompletedLessonCount++;
-            RecalculateProgress();
-        }
-    }
+        if (completionPercent < 0 || completionPercent > 100)
+            throw new ArgumentException("CompletionPercent must be between 0 and 100", nameof(completionPercent));
+        if (totalLessonCount <= 0)
+            throw new ArgumentException("TotalLessonCount must be positive", nameof(totalLessonCount));
 
-    public void RecalculateProgress()
-    {
-        CompletionPercent = TotalLessonCount > 0 
-            ? (float)CompletedLessonCount / TotalLessonCount * 100f 
-            : 0f;
+        TotalLessonCount = totalLessonCount;
+        CompletionPercent = completionPercent;
+        CompletedLessonCount = (int)Math.Round((completionPercent / 100f) * totalLessonCount, MidpointRounding.AwayFromZero);
 
         if (CompletionPercent >= 100f && !CompletedAt.HasValue)
-        {
             CompletedAt = DateTime.UtcNow;
-        }
 
         LastUpdated = DateTime.UtcNow;
     }
