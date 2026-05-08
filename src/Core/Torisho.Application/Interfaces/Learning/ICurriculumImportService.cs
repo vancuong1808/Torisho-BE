@@ -2,7 +2,12 @@ namespace Torisho.Application.Interfaces.Learning;
 
 public interface ICurriculumImportService
 {
-    Task<CurriculumImportResult> ImportFromFolderAsync(string folderPath, bool clearExisting = false, CancellationToken ct = default);
+    Task<CurriculumImportResult> ImportFromFolderAsync(
+        string folderPath,
+        bool clearExisting = false,
+        bool pregenerateLessonQuizzes = true,
+        bool useAiForPregenerate = true,
+        CancellationToken ct = default);
 }
 
 public sealed record CurriculumImportResult(
@@ -17,4 +22,7 @@ public sealed record CurriculumImportResult(
     int GrammarItemsInserted,
     int ReadingItemsInserted,
     bool ClearedExisting,
-    IReadOnlyList<string> Errors);
+    int LessonQuizzesCreated = 0,
+    int LessonQuizzesSkipped = 0,
+    int LessonQuizzesFailed = 0,
+    IReadOnlyList<string>? Errors = null);

@@ -92,3 +92,6 @@ yarn-error.log*
 .env
 .appsettings.Development.json
 
+# ===== Misc =====
+docs/
+raw_data/

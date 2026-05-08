@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
+using Torisho.Application.DTOs.Quiz;
 using Torisho.Application.Interfaces.Learning;
+using Torisho.Application.Interfaces.Quiz;
 using Torisho.Domain.Entities.LearningDomain;
 using Torisho.Domain.Entities.ProgressDomain;
 using Torisho.Domain.Enums;
@@ -11,13 +13,20 @@ namespace Torisho.Infrastructure.Services.Learning;
 public sealed class CurriculumImportService : ICurriculumImportService
 {
     private readonly IDataContext _context;
+    private readonly IPreparedQuizService _preparedQuizService;
 
-    public CurriculumImportService(IDataContext context)
+    public CurriculumImportService(IDataContext context, IPreparedQuizService preparedQuizService)
     {
         _context = context;
+        _preparedQuizService = preparedQuizService;
     }
 
-    public async Task<CurriculumImportResult> ImportFromFolderAsync(string folderPath, bool clearExisting = false, CancellationToken ct = default)
+    public async Task<CurriculumImportResult> ImportFromFolderAsync(
+        string folderPath,
+        bool clearExisting = false,
+        bool pregenerateLessonQuizzes = true,
+        bool useAiForPregenerate = true,
+        CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(folderPath))
             throw new ArgumentException("Folder path is required", nameof(folderPath));
@@ -43,6 +52,9 @@ public sealed class CurriculumImportService : ICurriculumImportService
                 GrammarItemsInserted: 0,
                 ReadingItemsInserted: 0,
                 ClearedExisting: clearExisting,
+                LessonQuizzesCreated: 0,
+                LessonQuizzesSkipped: 0,
+                LessonQuizzesFailed: 0,
                 Errors: errors);
         }
 
@@ -55,6 +67,10 @@ public sealed class CurriculumImportService : ICurriculumImportService
         var vocabInserted = 0;
         var grammarInserted = 0;
         var readingInserted = 0;
+        var lessonQuizzesCreated = 0;
+        var lessonQuizzesSkipped = 0;
+        var lessonQuizzesFailed = 0;
+        var importedScopes = new HashSet<(JLPTLevel LevelCode, int ChapterOrder)>();
 
         if (clearExisting)
         {
@@ -104,6 +120,8 @@ public sealed class CurriculumImportService : ICurriculumImportService
                 errors.Add($"{Path.GetFileName(file)}: invalid JSON structure");
                 continue;
             }
+
+            importedScopes.Add((parsed.LevelCode, parsed.ChapterOrder));
 
             if (!levelByCode.TryGetValue(parsed.LevelCode, out var level))
             {
@@ -242,6 +260,34 @@ public sealed class CurriculumImportService : ICurriculumImportService
 
         await _context.SaveChangesAsync(ct);
 
+        if (pregenerateLessonQuizzes)
+        {
+            foreach (var scope in importedScopes.OrderBy(x => GetLevelOrder(x.LevelCode)).ThenBy(x => x.ChapterOrder))
+            {
+                var pregenerateResult = await _preparedQuizService.PregenerateLessonQuizzesAsync(
+                    new QuizPregenerateRequest
+                    {
+                        LevelCode = scope.LevelCode,
+                        ChapterOrder = scope.ChapterOrder,
+                        ForceRegenerate = clearExisting,
+                        UseAiGeneration = useAiForPregenerate
+                    },
+                    ct);
+
+                lessonQuizzesCreated += pregenerateResult.CreatedCount;
+                lessonQuizzesSkipped += pregenerateResult.SkippedCount;
+                lessonQuizzesFailed += pregenerateResult.FailedCount;
+
+                if (pregenerateResult.FailedCount <= 0)
+                    continue;
+
+                foreach (var failed in pregenerateResult.Items.Where(i => i.Status == "failed"))
+                {
+                    errors.Add($"Quiz pre-generate failed ({failed.LessonSlug}, {failed.Type}): {failed.Message}");
+                }
+            }
+        }
+
         return new CurriculumImportResult(
             FilesDiscovered: files.Count,
             FilesProcessed: filesProcessed,
@@ -254,6 +300,9 @@ public sealed class CurriculumImportService : ICurriculumImportService
             GrammarItemsInserted: grammarInserted,
             ReadingItemsInserted: readingInserted,
             ClearedExisting: clearExisting,
+                LessonQuizzesCreated: lessonQuizzesCreated,
+                LessonQuizzesSkipped: lessonQuizzesSkipped,
+                LessonQuizzesFailed: lessonQuizzesFailed,
             Errors: errors);
     }
 
