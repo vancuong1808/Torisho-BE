@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Torisho.Infrastructure;
 
@@ -11,9 +12,11 @@ using Torisho.Infrastructure;
 namespace Torisho.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260420092107_ReuseLearningProgressForDashboard")]
+    partial class ReuseLearningProgressForDashboard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,204 +306,7 @@ namespace Torisho.Infrastructure.Migrations
                     b.ToTable("entry_reading", (string)null);
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Character")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("varchar(1)")
-                        .UseCollation("utf8mb4_bin");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("Frequency")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Grade")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("JlptLevel")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Kunyomi")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
-
-                    b.Property<string>("MeaningsJson")
-                        .IsRequired()
-                        .HasColumnType("json");
-
-                    b.Property<string>("Onyomi")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<int>("StrokeCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("UnicodeHex")
-                        .HasMaxLength(16)
-                        .HasColumnType("varchar(16)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Character")
-                        .IsUnique()
-                        .HasDatabaseName("ux_kanji_character");
-
-                    b.HasIndex("Frequency")
-                        .HasDatabaseName("idx_kanji_freq");
-
-                    b.HasIndex("Grade")
-                        .HasDatabaseName("idx_kanji_grade");
-
-                    b.HasIndex("JlptLevel")
-                        .HasDatabaseName("idx_kanji_jlpt");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_kanji_type");
-
-                    b.HasIndex("UnicodeHex")
-                        .HasDatabaseName("idx_kanji_ucs");
-
-                    b.ToTable("Kanji", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardDeck", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid?>("FolderId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("folder_id");
-
-                    b.Property<string>("ImportReference")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("import_reference");
-
-                    b.Property<string>("ImportSource")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("import_source");
-
-                    b.Property<bool>("IsArchived")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_archived");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FolderId");
-
-                    b.HasIndex("IsArchived")
-                        .HasDatabaseName("idx_flashcard_decks_is_archived");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("idx_flashcard_decks_user_id");
-
-                    b.HasIndex("UserId", "FolderId", "Name")
-                        .IsUnique()
-                        .HasDatabaseName("ux_flashcard_decks_user_folder_name");
-
-                    b.ToTable("flashcard_decks", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardFolder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("description");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("display_order");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "Name")
-                        .IsUnique()
-                        .HasDatabaseName("ux_flashcard_folders_user_name");
-
-                    b.ToTable("flashcard_folders", (string)null);
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardItem", b =>
+            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.FlashCard", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
@@ -518,18 +324,9 @@ namespace Torisho.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
 
-                    b.Property<Guid>("DeckId")
+                    b.Property<Guid>("DictionaryEntryId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deck_id");
-
-                    b.Property<Guid?>("DictionaryEntryId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("dictionary_entry_id");
-
-                    b.Property<string>("ExternalId")
-                        .HasMaxLength(128)
-                        .HasColumnType("varchar(128)")
-                        .HasColumnName("external_id");
+                        .HasColumnName("entry_id");
 
                     b.Property<string>("Front")
                         .IsRequired()
@@ -543,25 +340,6 @@ namespace Torisho.Infrastructure.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_favorite");
 
-                    b.Property<string>("Note")
-                        .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)")
-                        .HasColumnName("note");
-
-                    b.Property<int>("Position")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("position");
-
-                    b.Property<string>("SourceType")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasDefaultValue("manual")
-                        .HasColumnName("source_type");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)")
@@ -569,18 +347,22 @@ namespace Torisho.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("UpdatedAt"));
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DictionaryEntryId")
-                        .HasDatabaseName("idx_flashcard_items_entry_id");
+                        .HasDatabaseName("idx_flashcards_entry_id");
 
                     b.HasIndex("IsFavorite")
-                        .HasDatabaseName("idx_flashcard_items_is_favorite");
+                        .HasDatabaseName("idx_flashcards_is_favorite");
 
-                    b.HasIndex("DeckId", "Position")
-                        .HasDatabaseName("idx_flashcard_items_deck_position");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("idx_flashcards_user_id");
 
-                    b.ToTable("flashcard_items", (string)null);
+                    b.ToTable("flashcards", (string)null);
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
@@ -1727,15 +1509,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("AuthProvider")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("AuthProviderId")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("AvatarUrl")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
@@ -1757,6 +1530,7 @@ namespace Torisho.Infrastructure.Migrations
                         .HasColumnType("varchar(200)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
 
@@ -1786,10 +1560,6 @@ namespace Torisho.Infrastructure.Migrations
                     b.HasIndex("Username")
                         .IsUnique()
                         .HasDatabaseName("IX_Users_Username");
-
-                    b.HasIndex("AuthProvider", "AuthProviderId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Users_AuthProvider_AuthProviderId");
 
                     b.HasIndex("Status", "CreatedAt")
                         .HasDatabaseName("IX_Users_Status_CreatedAt");
@@ -1914,6 +1684,33 @@ namespace Torisho.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("VideoLessonVocabulary", b =>
+                {
+                    b.Property<Guid>("VideoLessonId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("VocabulariesId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("VideoLessonId", "VocabulariesId");
+
+                    b.HasIndex("VocabulariesId");
+
+                    b.ToTable("VideoLessonVocabularies", (string)null);
+                });
+
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Vocabulary", b =>
+                {
+                    b.HasBaseType("Torisho.Domain.Common.LearningContent");
+
+                    b.Property<Guid>("DictionaryEntryId")
+                        .HasColumnType("char(36)");
+
+                    b.HasIndex("DictionaryEntryId");
+
+                    b.ToTable("Vocabulary");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.VideoDomain.VideoLesson", b =>
@@ -2041,51 +1838,23 @@ namespace Torisho.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardDeck", b =>
+            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.FlashCard", b =>
                 {
-                    b.HasOne("Torisho.Domain.Entities.FlashcardDomain.FlashcardFolder", "Folder")
-                        .WithMany("Decks")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", "User")
-                        .WithMany("FlashcardDecks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Folder");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardFolder", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", "User")
-                        .WithMany("FlashcardFolders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardItem", b =>
-                {
-                    b.HasOne("Torisho.Domain.Entities.FlashcardDomain.FlashcardDeck", "Deck")
-                        .WithMany("Items")
-                        .HasForeignKey("DeckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
-                        .WithMany("FlashcardItems")
+                        .WithMany("FlashCards")
                         .HasForeignKey("DictionaryEntryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Deck");
+                    b.HasOne("Torisho.Domain.Entities.UserDomain.User", "User")
+                        .WithMany("FlashCards")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("DictionaryEntry");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.LearningDomain.Chapter", b =>
@@ -2387,6 +2156,32 @@ namespace Torisho.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("VideoLessonVocabulary", b =>
+                {
+                    b.HasOne("Torisho.Domain.Entities.VideoDomain.VideoLesson", null)
+                        .WithMany()
+                        .HasForeignKey("VideoLessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Torisho.Domain.Entities.ContentDomain.Vocabulary", null)
+                        .WithMany()
+                        .HasForeignKey("VocabulariesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Torisho.Domain.Entities.ContentDomain.Vocabulary", b =>
+                {
+                    b.HasOne("Torisho.Domain.Entities.DictionaryDomain.DictionaryEntry", "DictionaryEntry")
+                        .WithMany("Vocabularies")
+                        .HasForeignKey("DictionaryEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DictionaryEntry");
+                });
+
             modelBuilder.Entity("Torisho.Domain.Entities.VideoDomain.VideoLesson", b =>
                 {
                     b.HasOne("Torisho.Domain.Common.LearningContent", null)
@@ -2407,28 +2202,15 @@ namespace Torisho.Infrastructure.Migrations
 
                     b.Navigation("Definition");
 
-                    b.Navigation("FlashcardItems");
+                    b.Navigation("FlashCards");
 
                     b.Navigation("KanjiForms");
 
                     b.Navigation("KanjiLinks");
 
                     b.Navigation("ReadingForms");
-                });
 
-            modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
-                {
-                    b.Navigation("DictionaryEntryLinks");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardDeck", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Torisho.Domain.Entities.FlashcardDomain.FlashcardFolder", b =>
-                {
-                    b.Navigation("Decks");
+                    b.Navigation("Vocabularies");
                 });
 
             modelBuilder.Entity("Torisho.Domain.Entities.DictionaryDomain.Kanji", b =>
@@ -2483,9 +2265,7 @@ namespace Torisho.Infrastructure.Migrations
                 {
                     b.Navigation("DailyActivities");
 
-                    b.Navigation("FlashcardDecks");
-
-                    b.Navigation("FlashcardFolders");
+                    b.Navigation("FlashCards");
 
                     b.Navigation("LearningProgresses");
 

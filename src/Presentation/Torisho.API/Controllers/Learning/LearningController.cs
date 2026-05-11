@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Torisho.Application.DTOs.Learning;
 using Torisho.Application.Interfaces.Learning;
 using Torisho.Domain.Enums;
 
@@ -9,10 +12,14 @@ namespace Torisho.API.Controllers;
 public sealed class LearningController : ControllerBase
 {
     private readonly ILearningQueryService _learningQueryService;
+    private readonly ILearningTrackingService _learningTrackingService;
 
-    public LearningController(ILearningQueryService learningQueryService)
+    public LearningController(
+        ILearningQueryService learningQueryService,
+        ILearningTrackingService learningTrackingService)
     {
         _learningQueryService = learningQueryService;
+        _learningTrackingService = learningTrackingService;
     }
 
     [HttpGet("levels/{levelCode}/chapters")]
@@ -59,5 +66,32 @@ public sealed class LearningController : ControllerBase
             return NotFound(new { message = "Lesson not found" });
 
         return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("lessons/{slug}/start")]
+    public async Task<IActionResult> StartLesson(string slug, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _learningTrackingService.StartLessonAsync(userId, slug, ct);
+        return Ok(new { message = "Lesson started" });
+    }
+
+    [Authorize]
+    [HttpPost("lessons/{slug}/progress")]
+    public async Task<IActionResult> UpdateLessonProgress(string slug, [FromBody] LessonHeartbeatRequest request, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _learningTrackingService.UpdateLessonProgressAsync(userId, slug, request, ct);
+        return Ok(new { message = "Progress updated" });
+    }
+
+    [Authorize]
+    [HttpPost("lessons/{slug}/complete")]
+    public async Task<IActionResult> CompleteLesson(string slug, [FromBody] LessonHeartbeatRequest request, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _learningTrackingService.CompleteLessonAsync(userId, slug, request, ct);
+        return Ok(new { message = "Lesson completed" });
     }
 }

@@ -10,9 +10,11 @@ using Torisho.Application.Interfaces.Flashcard;
 using Torisho.Application.Interfaces.Room;
 using Torisho.Application.Interfaces.Dictionary;
 using Torisho.Application.Interfaces.Learning;
+using Torisho.Application.Interfaces.Quiz;
 using Torisho.Application.Services.Flashcard;
 using Torisho.Application.Services.Dictionary;
 using Torisho.Application.Services.Learning;
+using Torisho.Application.Services.Quiz;
 using Torisho.Domain.Interfaces;
 using Torisho.Domain.Interfaces.Repositories;
 using Torisho.Infrastructure;
@@ -24,8 +26,13 @@ using Torisho.Application.Validators.Auth;
 using Torisho.Infrastructure.Services.Dictionary;
 using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
+using Torisho.Application.Interfaces.Dashboard;
+using Torisho.Application.Services.Dashboard;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMemoryCache();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -65,6 +72,9 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IJmdictImportService, JmdictImportService>();
 builder.Services.AddScoped<ICurriculumImportService, CurriculumImportService>();
 builder.Services.AddScoped<ILearningQueryService, LearningQueryService>();
+builder.Services.AddScoped<IPreparedQuizService, PreparedQuizService>();
+builder.Services.AddScoped<IDailyQuizService, DailyQuizService>();
+builder.Services.AddHttpClient<IQuizTemplateAiService, QuizTemplateAiService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
@@ -75,7 +85,10 @@ builder.Services.AddScoped<IFlashcardStudyService, FlashcardStudyService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();
 builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
+builder.Services.AddScoped<ILearningTrackingService, LearningTrackingService>();
+builder.Services.AddScoped<IDashboardQueryService, DashboardQueryService>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
+
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");

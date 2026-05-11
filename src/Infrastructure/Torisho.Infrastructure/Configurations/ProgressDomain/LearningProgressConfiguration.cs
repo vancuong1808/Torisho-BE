@@ -32,22 +32,31 @@ public class LearningProgressConfiguration : IEntityTypeConfiguration<LearningPr
         builder.Property(lp => lp.TotalProgress)
             .HasDefaultValue(0f);
 
+        builder.Property(lp => lp.CurrentChapterId)
+            .IsRequired(false);
+
+        builder.Property(lp => lp.CurrentLessonId)
+            .IsRequired(false);
+
+        builder.Property(lp => lp.CurrentLessonProgressPercent)
+            .HasDefaultValue(0f);
+
+        builder.Property(lp => lp.CurrentSection)
+            .HasMaxLength(100);
+
         builder.Property(lp => lp.LastUpdated)
             .IsRequired();
 
-        // Indexes
         builder.HasIndex(lp => lp.UserId)
             .HasDatabaseName("IX_LearningProgresses_UserId");
 
         builder.HasIndex(lp => lp.LevelId)
             .HasDatabaseName("IX_LearningProgresses_LevelId");
 
-        // Unique: one progress per user per level
         builder.HasIndex(lp => new { lp.UserId, lp.LevelId })
             .IsUnique()
             .HasDatabaseName("IX_LearningProgresses_UserId_LevelId");
 
-        // Relationships
         builder.HasOne(lp => lp.User)
             .WithMany(u => u.LearningProgresses)
             .HasForeignKey(lp => lp.UserId)

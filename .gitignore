@@ -1,4 +1,5 @@
 data/
+Docs/
 # ===== .NET build outputs =====
 **/bin/
 **/obj/
@@ -90,3 +91,7 @@ yarn-error.log*
 # Local environment / secrets
 .env
 .appsettings.Development.json
+
+# ===== Misc =====
+docs/
+raw_data/

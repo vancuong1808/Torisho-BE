@@ -17,6 +17,13 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
     public float ReadingProgress { get; private set; }
     public float ListeningProgress { get; private set; }
     public float TotalProgress { get; private set; }
+
+    // Snapshot of the lesson the user is currently studying in this level.
+    public Guid? CurrentChapterId { get; private set; }
+    public Guid? CurrentLessonId { get; private set; }
+    public float CurrentLessonProgressPercent { get; private set; }
+    public string? CurrentSection { get; private set; }
+
     public DateTime LastUpdated { get; private set; }
 
     private LearningProgress() { }
@@ -33,49 +40,50 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
         LastUpdated = DateTime.UtcNow;
     }
 
-    public void UpdateSkillProgress(string skill, float value)
+    public void SetCurrentLesson(Guid chapterId, Guid lessonId, float lessonProgressPercent, string? currentSection = null)
     {
-        if (string.IsNullOrWhiteSpace(skill))
-            throw new ArgumentException("Skill is required", nameof(skill));
-        if (value < 0 || value > 100)
-            throw new ArgumentException("Value must be between 0 and 100", nameof(value));
+        if (chapterId == Guid.Empty)
+            throw new ArgumentException("ChapterId cannot be empty", nameof(chapterId));
+        if (lessonId == Guid.Empty)
+            throw new ArgumentException("LessonId cannot be empty", nameof(lessonId));
+        if (lessonProgressPercent < 0 || lessonProgressPercent > 100)
+            throw new ArgumentException("LessonProgressPercent must be between 0 and 100", nameof(lessonProgressPercent));
 
-        switch (skill.ToLower())
-        {
-            case "vocabulary":
-                VocabularyProgress = value;
-                break;
-            case "grammar":
-                GrammarProgress = value;
-                break;
-            case "reading":
-                ReadingProgress = value;
-                break;
-            case "listening":
-                ListeningProgress = value;
-                break;
-        }
-        TotalProgress = CalculateTotalProgress();
+        CurrentChapterId = chapterId;
+        CurrentLessonId = lessonId;
+        CurrentLessonProgressPercent = lessonProgressPercent;
+        CurrentSection = currentSection;
         LastUpdated = DateTime.UtcNow;
     }
 
-    public float CalculateTotalProgress()
+    public void ClearCurrentLesson()
     {
-        return (VocabularyProgress + GrammarProgress + ReadingProgress + ListeningProgress) / 4f;
+        CurrentChapterId = null;
+        CurrentLessonId = null;
+        CurrentLessonProgressPercent = 0f;
+        CurrentSection = null;
+        LastUpdated = DateTime.UtcNow;
     }
 
-    public void UpdateProgress(Guid userId, float progress)
+    public void RefreshAggregates(
+        float vocabularyProgress,
+        float grammarProgress,
+        float readingProgress,
+        float listeningProgress,
+        float totalProgress)
     {
-        if (UserId == userId)
-        {
-            TotalProgress = progress;
-            LastUpdated = DateTime.UtcNow;
-        }
-    }
+        ValidatePercent(vocabularyProgress, nameof(vocabularyProgress));
+        ValidatePercent(grammarProgress, nameof(grammarProgress));
+        ValidatePercent(readingProgress, nameof(readingProgress));
+        ValidatePercent(listeningProgress, nameof(listeningProgress));
+        ValidatePercent(totalProgress, nameof(totalProgress));
 
-    public float CalculateProgress(Guid userId)
-    {
-        return UserId == userId ? TotalProgress : 0f;
+        VocabularyProgress = vocabularyProgress;
+        GrammarProgress = grammarProgress;
+        ReadingProgress = readingProgress;
+        ListeningProgress = listeningProgress;
+        TotalProgress = totalProgress;
+        LastUpdated = DateTime.UtcNow;
     }
 
     public string GetStatus()
@@ -86,7 +94,14 @@ public sealed class LearningProgress : BaseEntity, IAggregateRoot
             >= 75f => "Advanced",
             >= 50f => "Intermediate",
             >= 25f => "Beginner",
-            _ => "Started"
+            > 0f => "Started",
+            _ => "NotStarted"
         };
+    }
+
+    private static void ValidatePercent(float value, string name)
+    {
+        if (value < 0 || value > 100)
+            throw new ArgumentException("Value must be between 0 and 100", name);
     }
 }
