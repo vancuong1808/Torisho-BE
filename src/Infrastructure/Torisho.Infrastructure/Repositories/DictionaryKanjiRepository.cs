@@ -49,4 +49,24 @@ public class DictionaryKanjiRepository : GenericRepository<Kanji>, IDictionaryKa
 
         return (row.Kanji, relatedEntries);
     }
+
+    public async Task<List<Kanji>> GetByCharactersAsync(IReadOnlyList<string> characters, CancellationToken ct = default)
+    {
+        if (characters is null || characters.Count == 0)
+            return new List<Kanji>();
+
+        var normalized = characters
+            .Where(ch => !string.IsNullOrWhiteSpace(ch))
+            .Select(ch => ch.Trim())
+            .Distinct()
+            .ToList();
+
+        if (normalized.Count == 0)
+            return new List<Kanji>();
+
+        return await _dbSet
+            .AsNoTracking()
+            .Where(k => normalized.Contains(k.Character))
+            .ToListAsync(ct);
+    }
 }

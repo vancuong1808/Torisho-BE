@@ -81,6 +81,7 @@ builder.Services.AddHttpClient<IQuizTemplateAiService, QuizTemplateAiService>();
 builder.Services.AddScoped<IDictionarySearchService, DictionarySearchService>();
 builder.Services.AddScoped<IDictionaryDetailService, DictionaryDetailService>();
 builder.Services.AddScoped<IDictionaryCommentService, DictionaryCommentService>();
+builder.Services.AddScoped<IDictionaryKanjiRecognitionService, DictionaryKanjiRecognitionService>();
 builder.Services.AddScoped<IFlashcardDeckService, FlashcardDeckService>();
 builder.Services.AddScoped<IFlashcardFolderService, FlashcardFolderService>();
 builder.Services.AddScoped<IFlashcardQueryService, FlashcardQueryService>();
@@ -91,6 +92,13 @@ builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
 builder.Services.AddScoped<ILearningTrackingService, LearningTrackingService>();
 builder.Services.AddScoped<IDashboardQueryService, DashboardQueryService>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();
+builder.Services.AddHttpClient<IKanjiRecognitionClient, SljfaqRecognitionClient>(client =>
+{
+    client.BaseAddress = new Uri("https://kanji.sljfaq.org/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; Torisho/1.0)");
+    client.DefaultRequestHeaders.Referrer = new Uri("https://kanji.sljfaq.org/draw.html");
+});
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
