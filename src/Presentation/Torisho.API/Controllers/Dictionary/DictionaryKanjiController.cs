@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Torisho.Application.DTOs.Dictionary;
@@ -50,7 +51,7 @@ public sealed class DictionaryKanjiController : ControllerBase
             return BadRequest(new { message = "request body is required" });
 
         if (request.Strokes is null || request.Strokes.Length == 0)
-            return Ok(Array.Empty<KanjiRecognitionCandidateDto>());
+            return Ok(Array.Empty<string>());
 
         if (request.Width < 100 || request.Width > 1000 || request.Height < 100 || request.Height > 1000)
             return BadRequest(new { message = "width/height must be between 100 and 1000" });

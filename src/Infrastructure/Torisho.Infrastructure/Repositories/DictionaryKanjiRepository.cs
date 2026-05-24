@@ -1,7 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Torisho.Application;
 using Torisho.Domain.Entities.DictionaryDomain;
@@ -50,23 +50,4 @@ public class DictionaryKanjiRepository : GenericRepository<Kanji>, IDictionaryKa
         return (row.Kanji, relatedEntries);
     }
 
-    public async Task<List<Kanji>> GetByCharactersAsync(IReadOnlyList<string> characters, CancellationToken ct = default)
-    {
-        if (characters is null || characters.Count == 0)
-            return new List<Kanji>();
-
-        var normalized = characters
-            .Where(ch => !string.IsNullOrWhiteSpace(ch))
-            .Select(ch => ch.Trim())
-            .Distinct()
-            .ToList();
-
-        if (normalized.Count == 0)
-            return new List<Kanji>();
-
-        return await _dbSet
-            .AsNoTracking()
-            .Where(k => normalized.Contains(k.Character))
-            .ToListAsync(ct);
-    }
 }
