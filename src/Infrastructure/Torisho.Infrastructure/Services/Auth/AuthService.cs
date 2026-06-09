@@ -1,6 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Torisho.Application;
+using Torisho.Application.Auth;
 using Torisho.Application.DTOs.Auth;
 using Torisho.Application.Interfaces.Auth;
 using Torisho.Application.Interfaces.Email;
@@ -17,6 +20,7 @@ public class AuthService : IAuthService
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IEnumerable<IExternalAuthProvider> _externalProviders;
     private readonly IEmailService _emailService;
+    private readonly IDataContext _context;
     private readonly string _frontendResetUrl;
     private const int PasswordResetTokenSizeBytes = 32;
     private static readonly TimeSpan PasswordResetTokenTtl = TimeSpan.FromMinutes(15);
@@ -27,6 +31,7 @@ public class AuthService : IAuthService
         IJwtTokenService jwtTokenService,
         IEnumerable<IExternalAuthProvider> externalProviders,
         IEmailService emailService,
+        IDataContext context,
         IConfiguration configuration)
     {
         _uow = uow;
@@ -34,6 +39,7 @@ public class AuthService : IAuthService
         _jwtTokenService = jwtTokenService;
         _externalProviders = externalProviders;
         _emailService = emailService;
+        _context = context;
 
         if (configuration == null)
             throw new ArgumentNullException(nameof(configuration));
@@ -57,6 +63,7 @@ public class AuthService : IAuthService
             passwordHash
         );
 
+        await AssignDefaultUserRoleAsync(user, ct);
         await _uow.Users.AddAsync(user, ct);
         await _uow.SaveChangesAsync(ct);
 
@@ -97,6 +104,8 @@ public class AuthService : IAuthService
         user = await _uow.Users.GetWithRolesAsync(user.Id, ct);
         if (user == null)
             throw new InvalidOperationException("Failed to load user with roles");
+
+        await EnsureDefaultUserRoleIfMissingAsync(user, ct);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
@@ -147,6 +156,8 @@ public class AuthService : IAuthService
 
         if (user.Status != UserStatus.Active)
             throw new UnauthorizedAccessException("Account is not active");
+
+        await EnsureDefaultUserRoleIfMissingAsync(user, ct);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
         var refreshToken = _jwtTokenService.GenerateRefreshToken();
@@ -346,6 +357,7 @@ public class AuthService : IAuthService
                 ?? throw new InvalidOperationException("Failed to load user for linking external provider");
 
             trackedUser.LinkExternalProvider(provider, externalResult.ProviderId);
+            await EnsureDefaultUserRoleIfMissingAsync(trackedUser, ct);
             await _uow.SaveChangesAsync(ct);
             return trackedUser;
         }
@@ -365,6 +377,7 @@ public class AuthService : IAuthService
             username
         );
 
+        await AssignDefaultUserRoleAsync(newUser, ct);
         await _uow.Users.AddAsync(newUser, ct);
         await _uow.SaveChangesAsync(ct);
 
@@ -400,6 +413,24 @@ public class AuthService : IAuthService
             normalizedPrefix = "user";
 
         return normalizedPrefix.Length <= 50 ? normalizedPrefix : normalizedPrefix[..50];
+    }
+
+    private async Task EnsureDefaultUserRoleIfMissingAsync(User user, CancellationToken ct)
+    {
+        if (user.Roles.Any())
+            return;
+
+        await AssignDefaultUserRoleAsync(user, ct);
+        await _uow.SaveChangesAsync(ct);
+    }
+
+    private async Task AssignDefaultUserRoleAsync(User user, CancellationToken ct)
+    {
+        var userRole = await _context.Set<Role>()
+            .FirstOrDefaultAsync(role => role.Name == AppRoles.User, ct)
+            ?? throw new InvalidOperationException("Default User role is not seeded");
+
+        user.AssignRole(userRole);
     }
 
     private UserDto MapToUserDto(User user)

@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Torisho.Application.Auth;
 using Torisho.Application.Interfaces.Learning;
 
 namespace Torisho.API.Controllers;
 
 [ApiController]
 [Route("api/learning/import")]
+[Authorize(Policy = AuthorizationPolicies.CanImportCurriculum)]
 public sealed class CurriculumImportController : ControllerBase
 {
     private readonly ICurriculumImportService _importService;

@@ -15,10 +15,10 @@ public sealed class Role : BaseEntity
 
     public Role(string name, string description)
     {
-        if (string.IsNullOrWhiteSpace(Name))
-            throw new ArgumentException("FullName is required", nameof(Name));
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name is required", nameof(name));
         
-        Name = name;
+        Name = name.Trim();
         Description = description;
     }
 
