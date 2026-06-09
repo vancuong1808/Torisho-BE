@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Torisho.Application.Auth;
 using Torisho.Application.DTOs.Quiz;
 using Torisho.Application.Interfaces.Quiz;
 using Torisho.Domain.Enums;
@@ -47,6 +48,7 @@ public sealed class QuizController : ControllerBase
     }
 
     [HttpGet("lesson/{lessonId:guid}/preview")]
+    [Authorize(Policy = AuthorizationPolicies.CanManageQuiz)]
     public async Task<IActionResult> PreviewLessonQuiz(
         Guid lessonId,
         [FromQuery] QuizType type = QuizType.Vocabulary,
@@ -110,6 +112,7 @@ public sealed class QuizController : ControllerBase
     }
 
     [HttpPost("lesson/pre-generate")]
+    [Authorize(Policy = AuthorizationPolicies.CanManageQuiz)]
     public async Task<IActionResult> PregenerateLessonQuizzes([FromBody] QuizPregenerateRequest? request, CancellationToken ct)
     {
         try

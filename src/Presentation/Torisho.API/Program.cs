@@ -5,6 +5,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Text;
 using Torisho.Application;
+using Torisho.Application.Auth;
 using Torisho.Application.Interfaces.Auth;
 using Torisho.Application.Interfaces.Flashcard;
 using Torisho.Application.Interfaces.Room;
@@ -30,6 +31,7 @@ using Torisho.Infrastructure.Services.Learning;
 using Torisho.Infrastructure.ExternalServices;
 using Torisho.Application.Interfaces.Dashboard;
 using Torisho.Application.Services.Dashboard;
+using Torisho.Infrastructure.Seed;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -133,7 +135,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
+        policy.RequireRole(AppRoles.Admin));
+
+    options.AddPolicy(AuthorizationPolicies.CanImportCurriculum, policy =>
+        policy.RequireClaim("Permission", AppPermissions.CurriculumImport));
+
+    options.AddPolicy(AuthorizationPolicies.CanManageQuiz, policy =>
+        policy.RequireClaim("Permission", AppPermissions.QuizManage));
+
+    options.AddPolicy(AuthorizationPolicies.CanModerateComments, policy =>
+        policy.RequireClaim("Permission", AppPermissions.CommentsModerate));
+});
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
 builder.Services.AddControllers()
@@ -176,5 +191,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<RoomHub>("/hubs/room");
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("AuthDataSeeder");
+
+    await AuthDataSeeder.SeedAsync(context, passwordHasher, app.Configuration, logger);
+}
 
 app.Run();
