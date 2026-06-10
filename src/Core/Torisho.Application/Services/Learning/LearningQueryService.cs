@@ -5,11 +5,19 @@ using Torisho.Application.DTOs.Learning;
 using Torisho.Application.Interfaces.Learning;
 using Torisho.Domain.Entities.LearningDomain;
 using Torisho.Domain.Enums;
+using QuizEntity = Torisho.Domain.Entities.QuizDomain.Quiz;
 
 namespace Torisho.Application.Services.Learning;
 
 public sealed class LearningQueryService : ILearningQueryService
 {
+    private static readonly QuizType[] LessonQuizTypes =
+    [
+        QuizType.Vocabulary,
+        QuizType.Grammar,
+        QuizType.Reading
+    ];
+
     private readonly IDataContext _context;
 
     public LearningQueryService(IDataContext context)
@@ -162,6 +170,8 @@ public sealed class LearningQueryService : ILearningQueryService
         if (lesson is null || lesson.Chapter is null || lesson.Chapter.Level is null)
             return null;
 
+        var hasPreparedQuiz = await HasPreparedLessonQuizAsync(lesson.Id, ct);
+
         return new LessonDetailDto
         {
             Id = lesson.Id,
@@ -170,7 +180,7 @@ public sealed class LearningQueryService : ILearningQueryService
             Description = lesson.Description,
             Order = lesson.Order,
             SourceLevel = lesson.SourceLevel,
-            HasQuiz = lesson.HasQuiz(),
+            HasQuiz = hasPreparedQuiz,
 
             ChapterId = lesson.ChapterId,
             ChapterTitle = lesson.Chapter.Title,
@@ -244,12 +254,20 @@ public sealed class LearningQueryService : ILearningQueryService
                 Description = l.Description,
                 Order = l.Order,
                 SourceLevel = l.SourceLevel,
-                HasQuiz = l.QuizId.HasValue,
+                HasQuiz = _context.Set<QuizEntity>()
+                    .Any(q => q.TargetContentId == l.Id && LessonQuizTypes.Contains(q.Type)),
                 VocabularyCount = l.VocabularyItems.Count,
                 GrammarCount = l.GrammarItems.Count,
                 ReadingCount = l.ReadingItems.Count
             })
             .ToListAsync(ct);
+    }
+
+    private Task<bool> HasPreparedLessonQuizAsync(Guid lessonId, CancellationToken ct)
+    {
+        return _context.Set<QuizEntity>()
+            .AsNoTracking()
+            .AnyAsync(q => q.TargetContentId == lessonId && LessonQuizTypes.Contains(q.Type), ct);
     }
 
     private static JsonElement ParseJsonOrDefault(string? json, string defaultJson = "[]")
