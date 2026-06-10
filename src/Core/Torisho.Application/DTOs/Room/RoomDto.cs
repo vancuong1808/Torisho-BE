@@ -13,5 +13,7 @@ public class RoomDto
     public DateTime? EndedAt { get; set; }
     public int ParticipantCount { get; set; }
     public int MaxParticipants { get; set; }
+    public bool IsPrivate { get; set; }
+    public string? InviteCode { get; set; }
     public List<RoomParticipantDto> Participants { get; set; } = new();
 }

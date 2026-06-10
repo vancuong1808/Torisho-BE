@@ -24,6 +24,8 @@ public static class RoomMapper
             EndedAt = room.EndedAt,
             ParticipantCount = room.Participants.Count(p => !p.LeftAt.HasValue),
             MaxParticipants = room.MaxParticipants,
+            IsPrivate = room.IsPrivate,
+            InviteCode = room.InviteCode,
             Participants = room.Participants
                 .Where(p => !p.LeftAt.HasValue)
                 .Select(p => p.ToDto())

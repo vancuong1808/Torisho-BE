@@ -15,6 +15,8 @@ public interface IRoomRepository : IRepository<Room>
     // find a waiting room by level (single)
     Task<Room?> FindWaitingRoomByLevelAsync(JLPTLevel level, CancellationToken ct = default);
 
+    Task<Room?> GetByInviteCodeAsync(string inviteCode, CancellationToken ct = default);
+
     // find waiting rooms by level (multiple)
     Task<IEnumerable<Room>> FindWaitingRoomsByLevelAsync(JLPTLevel level, CancellationToken ct = default);
 

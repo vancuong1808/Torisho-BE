@@ -37,6 +37,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
                 .ThenInclude(p => p.User)
             .Where(r => r.Status == RoomStatus.Waiting
                  && r.RoomType == RoomType.UserToUser
+                 && !r.IsPrivate
                  && r.TargetLevel == level
                  && r.CreatedAt >= cutoff
                  && r.Participants.Count(p => !p.LeftAt.HasValue) < r.MaxParticipants)
@@ -53,6 +54,7 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
                 .ThenInclude(p => p.User)
             .Where(r => r.Status == RoomStatus.Waiting
                  && r.RoomType == RoomType.UserToUser
+                 && !r.IsPrivate
                  && r.TargetLevel == level
                  && r.CreatedAt >= cutoff
                  && r.Participants.Count(p => !p.LeftAt.HasValue) < r.MaxParticipants)
@@ -73,6 +75,19 @@ public class RoomRepository : GenericRepository<Room>, IRoomRepository
                  && r.Participants.Any(p => p.UserId == userId && !p.LeftAt.HasValue))
             .OrderByDescending(r => r.CreatedAt) // Get the most recent one
             .FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<Room?> GetByInviteCodeAsync(string inviteCode, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(inviteCode))
+            return null;
+
+        var normalized = inviteCode.Trim().ToUpperInvariant();
+
+        return await _dbSet
+            .Include(r => r.Participants)
+                .ThenInclude(p => p.User)
+            .FirstOrDefaultAsync(r => r.InviteCode == normalized, ct);
     }
 
     public async Task<bool> IsUserInActiveRoomAsync(Guid userId, CancellationToken ct = default)

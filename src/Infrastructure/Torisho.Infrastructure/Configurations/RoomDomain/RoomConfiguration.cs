@@ -61,6 +61,17 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
             .IsRequired()
             .HasDefaultValue(2);
 
+        builder.Property(r => r.IsPrivate)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(r => r.InviteCode)
+            .HasMaxLength(12);
+
+        builder.HasIndex(r => r.InviteCode)
+            .IsUnique()
+            .HasDatabaseName("IX_Rooms_InviteCode");
+
         builder.HasIndex(r => new { r.Status, r.TargetLevel, r.RoomType })
             .HasDatabaseName("IX_Rooms_Matching");
     }

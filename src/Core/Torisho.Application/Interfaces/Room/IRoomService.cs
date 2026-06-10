@@ -6,6 +6,8 @@ namespace Torisho.Application.Interfaces.Room;
 public interface IRoomService
 {
     Task<RoomMatchResponse> FindOrCreateRoomAsync(Guid userId, JLPTLevel targetLevel, CancellationToken ct = default);
+    Task<RoomMatchResponse> CreatePrivateRoomAsync(Guid userId, JLPTLevel targetLevel, CancellationToken ct = default);
+    Task<RoomMatchResponse> JoinPrivateRoomAsync(Guid userId, string inviteCode, CancellationToken ct = default);
     Task<RoomDto> JoinRoomAsync(Guid userId, Guid roomId, CancellationToken ct = default);
     Task LeaveRoomAsync(Guid userId, Guid roomId, CancellationToken ct = default);
     Task<RoomDto> StartRoomAsync(Guid roomId, CancellationToken ct = default);

@@ -52,6 +52,53 @@ public class RoomController : ControllerBase
         }
     }
 
+    [HttpPost("private")]
+    public async Task<IActionResult> CreatePrivateRoom([FromBody] CreatePrivateRoomRequest request, CancellationToken ct)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _roomService.CreatePrivateRoomAsync(userId, request.TargetLevel, ct);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("private/{inviteCode}/join")]
+    public async Task<IActionResult> JoinPrivateRoom(string inviteCode, CancellationToken ct)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _roomService.JoinPrivateRoomAsync(userId, inviteCode, ct);
+
+            if (result.IsMatched && result.Room != null)
+            {
+                await _hubContext.Clients.Group(result.Room.Id.ToString())
+                    .SendAsync("RoomMatched", new RoomMatchedDto
+                    {
+                        RoomId = result.Room.Id,
+                        Status = result.Room.Status,
+                        ParticipantCount = result.Room.ParticipantCount,
+                        Message = "Your invited partner has joined the room!"
+                    }, ct);
+            }
+
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     // GET: api/room/current
     [HttpGet("current")]
     public async Task<IActionResult> GetCurrentRoom(CancellationToken ct)

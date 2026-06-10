@@ -20,6 +20,8 @@ public sealed class Room : BaseEntity, IAggregateRoot
     public IReadOnlyCollection<RoomMessage> Messages => _messages;
     public JLPTLevel? TargetLevel { get; private set;}
     public int MaxParticipants { get; private set; } = 2; // max 2 people in a room
+    public bool IsPrivate { get; private set; }
+    public string? InviteCode { get; private set; }
     private Room() { }
 
     public Room(RoomType roomType, DateTime scheduledAt, Guid? aiCoachId = null, JLPTLevel? targetLevel = null)
@@ -29,6 +31,18 @@ public sealed class Room : BaseEntity, IAggregateRoot
         AiCoachId = aiCoachId;
         TargetLevel = targetLevel;
         Status = RoomStatus.Waiting;
+    }
+
+    public void SetPrivateInvite(string inviteCode)
+    {
+        if (Status != RoomStatus.Waiting)
+            throw new InvalidOperationException("Cannot make a started room private.");
+
+        if (string.IsNullOrWhiteSpace(inviteCode))
+            throw new ArgumentException("Invite code is required.", nameof(inviteCode));
+
+        IsPrivate = true;
+        InviteCode = inviteCode.Trim().ToUpperInvariant();
     }
 
     public void Open()
