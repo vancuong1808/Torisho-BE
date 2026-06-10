@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Text;
+using System.Net.Http.Headers;
 using Torisho.Application;
 using Torisho.Application.Auth;
 using Torisho.Application.Interfaces.Auth;
@@ -90,6 +91,14 @@ builder.Services.AddScoped<IFlashcardStudyService, FlashcardStudyService>();
 builder.Services.AddScoped<IDictionaryEntryRepository, DictionaryEntryRepository>();
 builder.Services.AddScoped<IDictionaryKanjiRepository, DictionaryKanjiRepository>();
 builder.Services.AddScoped<IDictionaryKanjiService, DictionaryKanjiService>();
+builder.Services.AddHttpClient<IKanjiRecognitionClient, SljfaqKanjiRecognitionClient>(client =>
+{
+    client.BaseAddress = new Uri("https://kanji.sljfaq.org/");
+    client.Timeout = TimeSpan.FromSeconds(8);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
 builder.Services.AddScoped<ILearningTrackingService, LearningTrackingService>();
 builder.Services.AddScoped<IDashboardQueryService, DashboardQueryService>();
 builder.Services.AddHttpClient<ITatoeba, TatoebaService>();

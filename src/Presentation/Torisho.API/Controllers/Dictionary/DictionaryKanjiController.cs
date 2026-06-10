@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Torisho.Application.DTOs.Dictionary;
 using Torisho.Application.Interfaces.Dictionary;
 
 namespace Torisho.API.Controllers;
@@ -9,10 +10,12 @@ namespace Torisho.API.Controllers;
 public sealed class DictionaryKanjiController : ControllerBase
 {
     private readonly IDictionaryKanjiService _service;
+    private readonly IKanjiRecognitionClient _recognitionClient;
 
-    public DictionaryKanjiController(IDictionaryKanjiService service)
+    public DictionaryKanjiController(IDictionaryKanjiService service, IKanjiRecognitionClient recognitionClient)
     {
         _service = service;
+        _recognitionClient = recognitionClient;
     }
 
     [HttpGet("{character}")]
@@ -36,5 +39,18 @@ public sealed class DictionaryKanjiController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpPost("recognize")]
+    public async Task<IActionResult> Recognize([FromBody] RecognizeKanjiRequestDto request, CancellationToken ct)
+    {
+        if (request.Strokes.Count == 0)
+            return Ok(Array.Empty<string>());
+
+        if (request.Strokes.Count >= 50)
+            return BadRequest(new { message = "Too many strokes" });
+
+        var candidates = await _recognitionClient.RecognizeAsync(request, ct);
+        return Ok(candidates);
     }
 }
